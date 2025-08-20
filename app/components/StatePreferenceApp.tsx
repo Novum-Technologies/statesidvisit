@@ -53,6 +53,7 @@ export function StatePreferenceApp() {
   }, []);
 
   // Update URL when preferences change
+  /*
   useEffect(() => {
     const encoded = encodePreferencesToURL(preferences);
     const url = new URL(window.location.href);
@@ -66,6 +67,7 @@ export function StatePreferenceApp() {
     // Update URL without page reload
     window.history.replaceState({}, "", url.toString());
   }, [preferences]);
+  */
 
   const handleStateClick = useCallback(
     (stateId: string) => {
@@ -114,7 +116,14 @@ export function StatePreferenceApp() {
 
   // Share functionality
   const handleShare = async () => {
-    const shareUrl = window.location.href;
+    const encoded = encodePreferencesToURL(preferences);
+    const url = new URL(window.location.origin);
+
+    if (encoded) {
+      url.searchParams.set("prefs", encoded);
+    }
+
+    const shareUrl = url.toString();
 
     try {
       await navigator.clipboard.writeText(shareUrl);
