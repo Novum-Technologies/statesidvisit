@@ -175,9 +175,9 @@ export function StatePreferenceApp() {
               onPreferenceSelect={handlePreferenceSelect}
             />
 
-            {/* Action buttons */}
+            {/* Action buttons - Desktop */}
             {preferences.length > 0 && (
-              <div className="space-y-2">
+              <div className="hidden xl:block space-y-2">
                 <button
                   onClick={handleShare}
                   className="w-full px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors duration-200 font-medium relative"
@@ -209,7 +209,7 @@ export function StatePreferenceApp() {
             />
 
             {/* Instructions */}
-            <div className="mt-4 text-center text-gray-600">
+            <div className="mt-4 text-center text-gray-600 hidden md:block">
               {selectedPreference && (
                 <p>Click on states to mark them as "{selectedPreference}"</p>
               )}
@@ -222,6 +222,29 @@ export function StatePreferenceApp() {
                 hoveredState={hoveredState}
               />
             </div>
+
+            {/* Action buttons - Mobile */}
+            {preferences.length > 0 && (
+              <div className="xl:hidden mt-6 space-y-2">
+                <button
+                  onClick={handleShare}
+                  className="w-full px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors duration-200 font-medium relative"
+                >
+                  🔗 Share Your Map
+                  {showShareSuccess && (
+                    <span className="absolute top-0 right-0 transform translate-x-2 -translate-y-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">
+                      Copied!
+                    </span>
+                  )}
+                </button>
+                <button
+                  onClick={clearAllPreferences}
+                  className="w-full px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors duration-200 font-medium"
+                >
+                  🗑️ Clear All Preferences
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
