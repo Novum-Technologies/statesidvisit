@@ -40,26 +40,6 @@ export function AccurateUSMap({
         {/* Subtle background gradient */}
         <div className="absolute inset-0 bg-gradient-to-br from-blue-50/30 via-transparent to-purple-50/20 pointer-events-none"></div>
         <div className="relative">
-          {/* DC Button - positioned over the map - animations toned down */}
-          <button
-            onClick={() => {
-              if (selectedPreference) {
-                onStateClick("DC");
-              }
-            }}
-            onMouseEnter={() => onStateHover && onStateHover("DC")}
-            onMouseLeave={() => onStateHover && onStateHover(null)}
-            className="absolute top-6 right-6 z-10 px-4 py-2 text-sm font-bold rounded-xl border-2 transition-all duration-200 hover:shadow-md"
-            style={{
-              backgroundColor: getStateColor("DC"),
-              borderColor: "#1f2937",
-              color: "#ffffff",
-              textShadow: "1px 1px 2px rgba(0,0,0,0.8)",
-            }}
-          >
-            🏛️ DC
-          </button>
-
           <ComposableMap
             projection="geoAlbersUsa"
             width={1200} // Increased
@@ -134,6 +114,27 @@ export function AccurateUSMap({
               }
             </Geographies>
           </ComposableMap>
+
+          {/* DC Button - positioned over the map - animations toned down */}
+          <button
+            onClick={() => {
+              if (selectedPreference) {
+                onStateClick("DC");
+              }
+            }}
+            onMouseEnter={() => onStateHover && onStateHover("DC")}
+            onMouseLeave={() => onStateHover && onStateHover(null)}
+            className="absolute top-3/5 right-4 -translate-y-1/2 md:top-6 md:right-6 md:translate-y-0 z-10 px-2 py-1 text-xs md:px-4 md:py-2 md:text-sm font-bold rounded-xl border-2 transition-all duration-200 hover:shadow-md"
+            style={{
+              backgroundColor: getStateColor("DC"),
+              borderColor: "#1f2937",
+              color: "#ffffff",
+              textShadow: "1px 1px 2px rgba(0,0,0,0.8)",
+            }}
+          >
+            <span className="md:hidden">DC</span>
+            <span className="hidden md:inline">🏛️ DC</span>
+          </button>
         </div>
         <div className="text-center text-xs text-gray-400 mt-2">
           www.statesidliveinmap.com
