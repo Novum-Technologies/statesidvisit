@@ -6,7 +6,7 @@ RUN npm ci
 FROM node:20-alpine AS production-dependencies-env
 COPY ./package.json package-lock.json /app/
 WORKDIR /app
-RUN npm i --omit=dev --legacy-peer-deps 
+RUN npm i --legacy-peer-deps 
 
 FROM node:20-alpine AS build-env
 COPY . /app/
