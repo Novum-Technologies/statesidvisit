@@ -136,7 +136,7 @@ export function AccurateUSMap({
           </ComposableMap>
         </div>
         <div className="text-center text-xs text-gray-400 mt-2">
-          mapsIdLiveIn.com
+          www.statesidliveinmap.com
         </div>
         <PreferenceLegend />
       </div>
