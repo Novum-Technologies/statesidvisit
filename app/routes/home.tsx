@@ -1,13 +1,17 @@
 import type { Route } from "./+types/home";
-import { Welcome } from "../welcome/welcome";
+import { StatePreferenceApp } from "../components/StatePreferenceApp";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "New React Router App" },
-    { name: "description", content: "Welcome to React Router!" },
+    { title: "US States Living Preference Map" },
+    {
+      name: "description",
+      content:
+        "Interactive map to rate your preferences for living in different US states",
+    },
   ];
 }
 
 export default function Home() {
-  return <Welcome />;
+  return <StatePreferenceApp />;
 }
