@@ -29,9 +29,7 @@ export function PreferenceSelector({
         ).map(([level, config]) => (
           <button
             key={level}
-            onClick={() =>
-              onPreferenceSelect(selectedPreference === level ? null : level)
-            }
+            onClick={() => onPreferenceSelect(level)}
             className={`w-full p-4 rounded-lg border-2 transition-all duration-200 text-left ${
               selectedPreference === level
                 ? "border-blue-500 bg-blue-50 shadow-md"
