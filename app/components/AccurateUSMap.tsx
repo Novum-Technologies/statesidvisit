@@ -111,7 +111,7 @@ export function AccurateUSMap({
             style={{
               left: tooltipPosition.x,
               top: tooltipPosition.y,
-              marginTop: -30,
+              marginTop: -40,
             }}
           >
             {tooltipContent}
