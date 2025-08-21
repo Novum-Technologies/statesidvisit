@@ -12,10 +12,10 @@ export function PreferenceSelector({
 }: PreferenceSelectorProps) {
   return (
     <div className="bg-white rounded-lg shadow-lg p-6 border border-gray-200">
-      <h2 className="text-xl font-bold text-gray-800 mb-4">
+      <h2 className="text-xl font-bold text-gray-900 mb-4">
         Select Your Living Preference
       </h2>
-      <p className="text-gray-600 mb-6">
+      <p className="text-gray-700 mb-6">
         Choose a preference level, then click on states to apply it. Click a
         preference again to deselect.
       </p>
@@ -47,7 +47,7 @@ export function PreferenceSelector({
                 <div className="font-semibold text-gray-800">
                   {config.label}
                 </div>
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-gray-700">
                   {config.description}
                 </div>
               </div>
@@ -60,7 +60,7 @@ export function PreferenceSelector({
       </div>
 
       {selectedPreference && (
-        <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+        <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200 hidden sm:block">
           <p className="text-blue-800 font-medium">
             🎯 Click on any state to mark it as "
             {PREFERENCE_LEVELS[selectedPreference].label}"

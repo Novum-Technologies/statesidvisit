@@ -4,7 +4,7 @@ import {
   type StatePreference,
   type PreferenceLevel,
 } from "../data/states";
-import { getRandomStateFact } from "../data/stateFacts";
+import { US_STATE_DATA } from "../data/stateData";
 
 const STATE_NAMES: Record<string, string> = {
   AL: "Alabama",
@@ -113,22 +113,64 @@ export function PreferenceStats({
 
   const hoveredInfo = getHoveredStateInfo();
 
+  const getQuickStats = () => {
+    const absolutelyStates = preferences
+      .filter((p) => p.preference === "absolutely")
+      .map((p) => p.stateId);
+
+    if (absolutelyStates.length === 0) return null;
+
+    const redStates = absolutelyStates.filter(
+      (id) => US_STATE_DATA[id]?.politicalLeaning === "red"
+    ).length;
+    const blueStates = absolutelyStates.filter(
+      (id) => US_STATE_DATA[id]?.politicalLeaning === "blue"
+    ).length;
+    const majorCityStates = absolutelyStates.filter(
+      (id) => US_STATE_DATA[id]?.hasMajorCity
+    ).length;
+
+    const totalUSPopulation = Object.values(US_STATE_DATA).reduce(
+      (sum, state) => sum + state.population,
+      0
+    );
+
+    const absolutelyPopulation = absolutelyStates.reduce(
+      (sum, stateId) => sum + (US_STATE_DATA[stateId]?.population || 0),
+      0
+    );
+
+    const populationPercentage =
+      totalUSPopulation > 0
+        ? (absolutelyPopulation / totalUSPopulation) * 100
+        : 0;
+
+    return {
+      redStates,
+      blueStates,
+      majorCityStates,
+      populationPercentage,
+    };
+  };
+
+  const quickStats = getQuickStats();
+
   return (
     <div className="bg-white rounded-xl shadow-xl p-6 border border-gray-100 relative overflow-hidden">
       {/* Subtle background gradient */}
       <div className="absolute inset-0 bg-gradient-to-br from-purple-50/30 via-transparent to-blue-50/20 pointer-events-none"></div>
 
       <div className="relative">
-        <h2 className="text-xl font-bold text-gray-800 mb-4">
+        <h2 className="text-xl font-bold text-gray-900 mb-4">
           Your Preferences Summary
         </h2>
 
         {/* Progress Section */}
         <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-200">
           <div className="flex justify-between items-center mb-2">
-            <span className="text-sm font-medium text-gray-700">Progress</span>
+            <span className="text-sm font-medium text-gray-800">Progress</span>
             <span className="text-sm font-bold text-blue-600">
-              {totalStates}/{totalUSStates} states
+              {totalStates}/{totalUSStates} states & DC
             </span>
           </div>
 
@@ -141,13 +183,13 @@ export function PreferenceStats({
           </div>
 
           <div className="flex justify-between items-center">
-            <span className="text-xs text-gray-600">
+            <span className="text-xs text-gray-700">
               {progressPercentage}% complete
             </span>
             {currentMilestone && (
               <div className="flex items-center space-x-2 bg-white px-3 py-1 rounded-full shadow-sm border animate-bounce">
                 <span className="text-lg">{currentMilestone.emoji}</span>
-                <span className="text-xs font-semibold text-gray-700">
+                <span className="text-xs font-semibold text-gray-800">
                   {currentMilestone.text}
                 </span>
               </div>
@@ -157,7 +199,7 @@ export function PreferenceStats({
 
         {/* Progress indicator */}
         <div className="mb-6">
-          <div className="flex justify-between text-sm text-gray-600 mb-2">
+          <div className="flex justify-between text-sm text-gray-700 mb-2">
             <span>States Rated</span>
             <span>
               {totalStates} of {totalUSStates}
@@ -190,14 +232,14 @@ export function PreferenceStats({
                     className="w-4 h-4 rounded-full border border-gray-300"
                     style={{ backgroundColor: config.color }}
                   />
-                  <span className="text-gray-700 font-medium">
+                  <span className="text-gray-800 font-medium">
                     {config.label}
                   </span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <span className="text-gray-600 text-sm">{count} states</span>
+                  <span className="text-gray-700 text-sm">{count} states</span>
                   {totalStates > 0 && (
-                    <span className="text-gray-500 text-sm">
+                    <span className="text-gray-600 text-sm">
                       ({percentage.toFixed(0)}%)
                     </span>
                   )}
@@ -207,49 +249,38 @@ export function PreferenceStats({
           })}
         </div>
 
-        {/* Hovered state info */}
-        {hoveredInfo?.state && (
-          <div className="mt-6 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg border border-yellow-200">
-            <h3 className="font-semibold text-gray-800 mb-2">
-              {hoveredInfo.state.name} ({hoveredInfo.state.id})
-            </h3>
-            {hoveredInfo.preference ? (
-              <div className="flex items-center space-x-2 mb-3">
-                <div
-                  className="w-3 h-3 rounded-full"
-                  style={{
-                    backgroundColor:
-                      PREFERENCE_LEVELS[hoveredInfo.preference.preference]
-                        .color,
-                  }}
-                />
-                <span className="text-gray-700">
-                  {PREFERENCE_LEVELS[hoveredInfo.preference.preference].label}
-                </span>
-              </div>
-            ) : (
-              <span className="text-gray-500 italic mb-3 block">
-                Not rated yet
-              </span>
-            )}
-
-            {/* Fun fact */}
-            <div className="mt-3 p-3 bg-white rounded-md border border-yellow-300">
-              <h4 className="text-sm font-medium text-gray-800 mb-1 flex items-center">
-                🎯 Fun Fact:
-              </h4>
-              <p className="text-sm text-gray-700 italic">
-                {getRandomStateFact(hoveredInfo.state.id)}
-              </p>
-            </div>
-          </div>
-        )}
-
         {/* Fun facts */}
         {totalStates > 0 && (
           <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
-            <h3 className="font-semibold text-gray-800 mb-2">📊 Quick Stats</h3>
-            <div className="text-sm text-gray-700 space-y-1">
+            <h3 className="font-semibold text-gray-900 mb-2">📊 Quick Stats</h3>
+            <div className="text-sm text-gray-800 space-y-1">
+              {quickStats && (
+                <>
+                  <div>
+                    Politically, your 'Absolutely' states are{" "}
+                    <span className="font-bold text-red-600">
+                      {quickStats.redStates} red
+                    </span>{" "}
+                    and{" "}
+                    <span className="font-bold text-blue-600">
+                      {quickStats.blueStates} blue
+                    </span>
+                    .
+                  </div>
+                  <div>
+                    {quickStats.majorCityStates} of them have a major city.
+                  </div>
+                  {quickStats.populationPercentage > 0 && (
+                    <div>
+                      They represent{" "}
+                      <span className="font-bold">
+                        {quickStats.populationPercentage.toFixed(1)}%
+                      </span>{" "}
+                      of the U.S. population.
+                    </div>
+                  )}
+                </>
+              )}
               {counts.absolutely > 0 && (
                 <div>
                   💚 You'd love to live in {counts.absolutely} state
@@ -263,7 +294,7 @@ export function PreferenceStats({
                 </div>
               )}
               {totalStates === totalUSStates && (
-                <div>🎉 You've rated all 51 states and DC!</div>
+                <div>🎉 You've rated all 50 states and DC!</div>
               )}
             </div>
           </div>

@@ -22,27 +22,27 @@ export const PREFERENCE_LEVELS: Record<
 > = {
   never: {
     label: "Never",
-    color: "#ef4444", // red-500
+    color: "#dc2626", // red-600
     description: "Absolutely would not live here",
   },
   reluctantly: {
     label: "Reluctantly",
-    color: "#f97316", // orange-500
+    color: "#f59e0b", // amber-500
     description: "Only if I absolutely had to",
   },
   neutral: {
     label: "Neutral",
-    color: "#6b7280", // gray-500
+    color: "#64748b", // slate-500
     description: "No strong feelings either way",
   },
   willing: {
     label: "Willing",
-    color: "#10b981", // emerald-500
+    color: "#22c55e", // green-500
     description: "Would consider living here",
   },
   absolutely: {
     label: "Absolutely",
-    color: "#059669", // emerald-600
+    color: "#15803d", // green-700
     description: "Would love to live here",
   },
 };

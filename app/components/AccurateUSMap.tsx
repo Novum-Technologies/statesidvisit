@@ -36,7 +36,7 @@ export function AccurateUSMap({
 
   return (
     <div className="w-full max-w-7xl mx-auto">
-      <div className="bg-white rounded-xl shadow-2xl p-6 border border-gray-100 relative overflow-hidden">
+      <div className="bg-white rounded-xl shadow-2xl p-2 border border-gray-100 relative overflow-hidden">
         {/* Subtle background gradient */}
         <div className="absolute inset-0 bg-gradient-to-br from-blue-50/30 via-transparent to-purple-50/20 pointer-events-none"></div>
         <div className="relative">
@@ -124,7 +124,7 @@ export function AccurateUSMap({
             }}
             onMouseEnter={() => onStateHover && onStateHover("DC")}
             onMouseLeave={() => onStateHover && onStateHover(null)}
-            className="absolute top-3/5 right-4 -translate-y-1/2 md:top-6 md:right-6 md:translate-y-0 z-10 px-2 py-1 text-xs md:px-4 md:py-2 md:text-sm font-bold rounded-xl border-2 transition-all duration-200 hover:shadow-md"
+            className="absolute top-3/5 right-4 -translate-y-1/2 md:top-1/2 md:right-[10%] md:-translate-y-1/2 z-10 px-2 py-1 text-xs md:px-4 md:py-2 md:text-sm font-bold rounded-xl border-2 transition-all duration-200 hover:shadow-md"
             style={{
               backgroundColor: getStateColor("DC"),
               borderColor: "#1f2937",
