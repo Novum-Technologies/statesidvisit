@@ -47,6 +47,22 @@ export const PREFERENCE_LEVELS: Record<
   },
 };
 
+export const PREFERENCE_MAP: Record<PreferenceLevel, number> = {
+  never: 0,
+  reluctantly: 1,
+  neutral: 2,
+  willing: 3,
+  absolutely: 4,
+};
+
+export const PREFERENCE_MAP_REVERSE: Record<number, PreferenceLevel> = {
+  0: "never",
+  1: "reluctantly",
+  2: "neutral",
+  3: "willing",
+  4: "absolutely",
+};
+
 // US States with accurate SVG path data for interactive map
 export const US_STATES: State[] = [
   {

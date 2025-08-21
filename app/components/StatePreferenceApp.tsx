@@ -2,7 +2,12 @@ import React, { useState, useCallback, useEffect } from "react";
 import { AccurateUSMap } from "./AccurateUSMap";
 import { PreferenceSelector } from "./PreferenceSelector";
 import { PreferenceStats } from "./PreferenceStats";
-import type { StatePreference, PreferenceLevel } from "../data/states";
+import {
+  PREFERENCE_MAP,
+  PREFERENCE_MAP_REVERSE,
+  type PreferenceLevel,
+  type StatePreference,
+} from "../data/states";
 
 export function StatePreferenceApp() {
   const [preferences, setPreferences] = useState<StatePreference[]>([]);
@@ -14,24 +19,22 @@ export function StatePreferenceApp() {
   // Encode preferences to URL parameter
   const encodePreferencesToURL = (prefs: StatePreference[]): string => {
     if (prefs.length === 0) return "";
-
-    // Create a compact encoding: stateId:preference,stateId:preference
-    const encoded = prefs
-      .map((pref) => `${pref.stateId}:${pref.preference}`)
-      .join(",");
-
-    return btoa(encoded); // Base64 encode for URL safety
+    return prefs
+      .map((p) => `${p.stateId}${PREFERENCE_MAP[p.preference]}`)
+      .join("-");
   };
 
   // Decode preferences from URL parameter
   const decodePreferencesFromURL = (encoded: string): StatePreference[] => {
     try {
       if (!encoded) return [];
-
-      const decoded = atob(encoded); // Base64 decode
-      return decoded.split(",").map((item) => {
-        const [stateId, preference] = item.split(":");
-        return { stateId, preference: preference as PreferenceLevel };
+      return encoded.split("-").map((item) => {
+        const stateId = item.slice(0, 2);
+        const preferenceNum = parseInt(item.slice(2), 10);
+        return {
+          stateId,
+          preference: PREFERENCE_MAP_REVERSE[preferenceNum],
+        };
       });
     } catch (error) {
       console.warn("Failed to decode preferences from URL:", error);
