@@ -197,22 +197,6 @@ export function PreferenceStats({
           </div>
         </div>
 
-        {/* Progress indicator */}
-        <div className="mb-6">
-          <div className="flex justify-between text-sm text-gray-700 mb-2">
-            <span>States Rated</span>
-            <span>
-              {totalStates} of {totalUSStates}
-            </span>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div
-              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-              style={{ width: `${(totalStates / totalUSStates) * 100}%` }}
-            />
-          </div>
-        </div>
-
         {/* Preference breakdown */}
         <div className="space-y-3">
           {(
@@ -253,26 +237,52 @@ export function PreferenceStats({
         {totalStates > 0 && (
           <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
             <h3 className="font-semibold text-gray-900 mb-2">📊 Quick Stats</h3>
-            <div className="text-sm text-gray-800 space-y-1">
+            <div className="text-sm text-gray-800 space-y-2">
               {quickStats && (
                 <>
                   <div>
-                    Politically, your 'Absolutely' states are{" "}
-                    <span className="font-bold text-red-600">
-                      {quickStats.redStates} red
-                    </span>{" "}
-                    and{" "}
-                    <span className="font-bold text-blue-600">
-                      {quickStats.blueStates} blue
-                    </span>
-                    .
+                    <span className="font-semibold">Political Leaning:</span>
+                    <div className="mt-1 flex w-full h-4 rounded-full overflow-hidden bg-gray-200 border border-gray-300">
+                      <div
+                        className="bg-red-500 h-full"
+                        style={{
+                          width: `${
+                            (quickStats.redStates /
+                              (quickStats.redStates + quickStats.blueStates)) *
+                            100
+                          }%`,
+                        }}
+                      />
+                      <div
+                        className="bg-blue-500 h-full"
+                        style={{
+                          width: `${
+                            (quickStats.blueStates /
+                              (quickStats.redStates + quickStats.blueStates)) *
+                            100
+                          }%`,
+                        }}
+                      />
+                    </div>
+                    <div className="flex justify-between text-xs mt-1">
+                      <span className="text-red-600 font-medium">
+                        {quickStats.redStates} Red
+                      </span>
+                      <span className="text-blue-600 font-medium">
+                        {quickStats.blueStates} Blue
+                      </span>
+                    </div>
                   </div>
                   <div>
-                    {quickStats.majorCityStates} of them have a major city.
+                    🏙️{" "}
+                    <span className="font-semibold">
+                      {quickStats.majorCityStates}
+                    </span>{" "}
+                    of your top states have a major city.
                   </div>
                   {quickStats.populationPercentage > 0 && (
                     <div>
-                      They represent{" "}
+                      🌎 They represent{" "}
                       <span className="font-bold">
                         {quickStats.populationPercentage.toFixed(1)}%
                       </span>{" "}
@@ -281,20 +291,10 @@ export function PreferenceStats({
                   )}
                 </>
               )}
-              {counts.absolutely > 0 && (
-                <div>
-                  💚 You'd love to live in {counts.absolutely} state
-                  {counts.absolutely !== 1 ? "s" : ""}
+              {totalStates > 0 && counts.absolutely === 0 && (
+                <div className="text-center text-gray-500 italic py-4">
+                  Select a state as "Absolutely" to see more stats!
                 </div>
-              )}
-              {counts.never > 0 && (
-                <div>
-                  ❌ You'd never live in {counts.never} state
-                  {counts.never !== 1 ? "s" : ""}
-                </div>
-              )}
-              {totalStates === totalUSStates && (
-                <div>🎉 You've rated all 50 states and DC!</div>
               )}
             </div>
           </div>
