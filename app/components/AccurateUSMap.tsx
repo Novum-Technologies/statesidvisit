@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { ComposableMap, Geographies, Geography } from "react-simple-maps";
 import {
   PREFERENCE_LEVELS,
@@ -9,6 +9,60 @@ import { PreferenceLegend } from "./PreferenceLegend";
 
 // US States TopoJSON URL - clean, simple version
 const geoUrl = "https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json";
+
+const STATE_NAMES: Record<string, string> = {
+  AL: "Alabama",
+  AK: "Alaska",
+  AZ: "Arizona",
+  AR: "Arkansas",
+  CA: "California",
+  CO: "Colorado",
+  CT: "Connecticut",
+  DE: "Delaware",
+  FL: "Florida",
+  GA: "Georgia",
+  HI: "Hawaii",
+  ID: "Idaho",
+  IL: "Illinois",
+  IN: "Indiana",
+  IA: "Iowa",
+  KS: "Kansas",
+  KY: "Kentucky",
+  LA: "Louisiana",
+  ME: "Maine",
+  MD: "Maryland",
+  MA: "Massachusetts",
+  MI: "Michigan",
+  MN: "Minnesota",
+  MS: "Mississippi",
+  MO: "Missouri",
+  MT: "Montana",
+  NE: "Nebraska",
+  NV: "Nevada",
+  NH: "New Hampshire",
+  NJ: "New Jersey",
+  NM: "New Mexico",
+  NY: "New York",
+  NC: "North Carolina",
+  ND: "North Dakota",
+  OH: "Ohio",
+  OK: "Oklahoma",
+  OR: "Oregon",
+  PA: "Pennsylvania",
+  RI: "Rhode Island",
+  SC: "South Carolina",
+  SD: "South Dakota",
+  TN: "Tennessee",
+  TX: "Texas",
+  UT: "Utah",
+  VT: "Vermont",
+  VA: "Virginia",
+  WA: "Washington",
+  WV: "West Virginia",
+  WI: "Wisconsin",
+  WY: "Wyoming",
+  DC: "District of Columbia",
+};
 
 interface AccurateUSMapProps {
   preferences: StatePreference[];
@@ -23,6 +77,9 @@ export function AccurateUSMap({
   onStateClick,
   onStateHover,
 }: AccurateUSMapProps) {
+  const [tooltipContent, setTooltipContent] = useState("");
+  const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
+
   const getStateColor = (stateId: string): string => {
     const preference = preferences.find((p) => p.stateId === stateId);
     if (!preference) return "#9ca3af"; // gray-400 for unselected states - much more visible
@@ -34,9 +91,32 @@ export function AccurateUSMap({
     return preference ? 1 : 0.9; // Less transparent for unselected states
   };
 
+  const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    setTooltipPosition({
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top,
+    });
+  };
+
   return (
     <div className="w-full max-w-7xl mx-auto">
-      <div className="bg-white rounded-xl shadow-2xl p-2 border border-gray-100 relative overflow-hidden">
+      <div
+        className="bg-white rounded-xl shadow-2xl p-2 border border-gray-100 relative overflow-hidden"
+        onMouseMove={handleMouseMove}
+      >
+        {tooltipContent && (
+          <div
+            className="absolute z-20 pointer-events-none -translate-x-1/2 bg-gray-900 text-white text-sm rounded-md px-3 py-1.5"
+            style={{
+              left: tooltipPosition.x,
+              top: tooltipPosition.y,
+              marginTop: -30,
+            }}
+          >
+            {tooltipContent}
+          </div>
+        )}
         {/* Subtle background gradient */}
         <div className="absolute inset-0 bg-gradient-to-br from-blue-50/30 via-transparent to-purple-50/20 pointer-events-none"></div>
         <div className="relative">
@@ -101,11 +181,15 @@ export function AccurateUSMap({
                       onMouseEnter={() => {
                         if (onStateHover && stateAbbr) {
                           onStateHover(stateAbbr);
+                          setTooltipContent(
+                            STATE_NAMES[stateAbbr] || stateAbbr
+                          );
                         }
                       }}
                       onMouseLeave={() => {
                         if (onStateHover) {
                           onStateHover(null);
+                          setTooltipContent("");
                         }
                       }}
                     />
@@ -122,8 +206,14 @@ export function AccurateUSMap({
                 onStateClick("DC");
               }
             }}
-            onMouseEnter={() => onStateHover && onStateHover("DC")}
-            onMouseLeave={() => onStateHover && onStateHover(null)}
+            onMouseEnter={() => {
+              onStateHover && onStateHover("DC");
+              setTooltipContent("District of Columbia");
+            }}
+            onMouseLeave={() => {
+              onStateHover && onStateHover(null);
+              setTooltipContent("");
+            }}
             className="absolute top-3/5 right-4 -translate-y-1/2 md:top-1/2 md:right-[10%] md:-translate-y-1/2 z-10 px-2 py-1 text-xs md:px-4 md:py-2 md:text-sm font-bold rounded-xl border-2 transition-all duration-200 hover:shadow-md"
             style={{
               backgroundColor: getStateColor("DC"),
