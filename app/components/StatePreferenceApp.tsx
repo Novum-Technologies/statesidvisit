@@ -1,7 +1,8 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import { AccurateUSMap } from "./AccurateUSMap";
 import { PreferenceSelector } from "./PreferenceSelector";
 import { PreferenceStats } from "./PreferenceStats";
+import { toPng } from "html-to-image";
 import {
   PREFERENCE_MAP,
   PREFERENCE_MAP_REVERSE,
@@ -15,6 +16,7 @@ export function StatePreferenceApp() {
     useState<PreferenceLevel | null>("never");
   const [hoveredState, setHoveredState] = useState<string | null>(null);
   const [showShareSuccess, setShowShareSuccess] = useState(false);
+  const mapRef = useRef<HTMLDivElement>(null);
 
   // Encode preferences to URL parameter
   const encodePreferencesToURL = (prefs: StatePreference[]): string => {
@@ -112,6 +114,23 @@ export function StatePreferenceApp() {
     setHoveredState(stateId);
   }, []);
 
+  const handleExportImage = useCallback(() => {
+    if (mapRef.current === null) {
+      return;
+    }
+
+    toPng(mapRef.current, { cacheBust: true })
+      .then((dataUrl) => {
+        const link = document.createElement("a");
+        link.download = "my-states-map.png";
+        link.href = dataUrl;
+        link.click();
+      })
+      .catch((err) => {
+        console.error("Failed to export image:", err);
+      });
+  }, [mapRef]);
+
   const clearAllPreferences = () => {
     setPreferences([]);
     setSelectedPreference(null);
@@ -193,6 +212,12 @@ export function StatePreferenceApp() {
                   )}
                 </button>
                 <button
+                  onClick={handleExportImage}
+                  className="w-full px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors duration-200 font-medium"
+                >
+                  🖼️ Export Image
+                </button>
+                <button
                   onClick={clearAllPreferences}
                   className="w-full px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors duration-200 font-medium"
                 >
@@ -205,6 +230,7 @@ export function StatePreferenceApp() {
           {/* Right side - Large Map and Stats */}
           <div className="xl:col-span-3">
             <AccurateUSMap
+              ref={mapRef}
               preferences={preferences}
               selectedPreference={selectedPreference}
               onStateClick={handleStateClick}
@@ -239,6 +265,12 @@ export function StatePreferenceApp() {
                       Copied!
                     </span>
                   )}
+                </button>
+                <button
+                  onClick={handleExportImage}
+                  className="w-full px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors duration-200 font-medium"
+                >
+                  🖼️ Export Image
                 </button>
                 <button
                   onClick={clearAllPreferences}
