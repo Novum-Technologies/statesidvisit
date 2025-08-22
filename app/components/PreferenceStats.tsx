@@ -35,7 +35,7 @@ export function PreferenceStats({
     const counts: Record<PreferenceLevel, number> = {
       never: 0,
       reluctantly: 0,
-      neutral: 0,
+      maybe: 0,
       willing: 0,
       absolutely: 0,
     };

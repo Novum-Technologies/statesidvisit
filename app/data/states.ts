@@ -12,7 +12,7 @@ export interface StatePreference {
 export type PreferenceLevel =
   | "never"
   | "reluctantly"
-  | "neutral"
+  | "maybe"
   | "willing"
   | "absolutely";
 
@@ -30,9 +30,9 @@ export const PREFERENCE_LEVELS: Record<
     color: "#f59e0b", // amber-500
     description: "Only if I absolutely had to",
   },
-  neutral: {
-    label: "Neutral",
-    color: "#64748b", // slate-500
+  maybe: {
+    label: "Maybe",
+    color: "#fed7aa", // orange-200
     description: "No strong feelings either way",
   },
   willing: {
@@ -50,7 +50,7 @@ export const PREFERENCE_LEVELS: Record<
 export const PREFERENCE_MAP: Record<PreferenceLevel, number> = {
   never: 0,
   reluctantly: 1,
-  neutral: 2,
+  maybe: 2,
   willing: 3,
   absolutely: 4,
 };
@@ -58,7 +58,7 @@ export const PREFERENCE_MAP: Record<PreferenceLevel, number> = {
 export const PREFERENCE_MAP_REVERSE: Record<number, PreferenceLevel> = {
   0: "never",
   1: "reluctantly",
-  2: "neutral",
+  2: "maybe",
   3: "willing",
   4: "absolutely",
 };
