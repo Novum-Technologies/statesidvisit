@@ -9,9 +9,7 @@ import {
   type PreferenceLevel,
   type StatePreference,
 } from "../data/states";
-import {
-  CANADA_PROVINCE_NAMES,
-} from "../data/canadaData";
+import { CANADA_PROVINCE_NAMES } from "../data/canadaData";
 import { EU_COUNTRY_NAMES } from "../data/euData";
 import { STATE_NAMES } from "../data/states";
 import LZString from "lz-string";
@@ -56,9 +54,7 @@ export function StatePreferenceApp() {
         center: [-96, 38],
       },
       getGeographyId: (geo: any) =>
-        geo.properties.STUSPS ||
-        geo.properties.name ||
-        geo.id,
+        geo.properties.STUSPS || geo.properties.name || geo.id,
       getGeographyName: (geo: any) => geo.properties.name,
       exclude: [
         "American Samoa",
@@ -79,7 +75,7 @@ export function StatePreferenceApp() {
       },
       getGeographyId: (geo: any) => geo.id,
       getGeographyName: (geo: any) => geo.properties.name,
-      exclude: [],
+      exclude: ["-99"],
     },
     Europe: {
       geoUrl: "/maps/eu.topo.json",
@@ -101,10 +97,7 @@ export function StatePreferenceApp() {
       .then((res) => res.json())
       .then((data) => {
         const features = (
-          feature(
-            data,
-            data.objects[Object.keys(data.objects)[0]]
-          ) as any
+          feature(data, data.objects[Object.keys(data.objects)[0]]) as any
         ).features;
         const filteredFeatures = features.filter(
           (f: any) =>
@@ -162,7 +155,8 @@ export function StatePreferenceApp() {
     const compressedPrefs = urlParams.get("prefs");
     if (compressedPrefs) {
       try {
-        const json = LZString.decompressFromEncodedURIComponent(compressedPrefs);
+        const json =
+          LZString.decompressFromEncodedURIComponent(compressedPrefs);
         const newAllPreferences = JSON.parse(json);
         setAllPreferences(newAllPreferences);
         return;
@@ -222,23 +216,33 @@ export function StatePreferenceApp() {
 
       setAllPreferences((prevAll) => {
         const prevForMap = prevAll[selectedMap];
-        const existingIndex = prevForMap.findIndex((p) => p.stateId === stateId);
+        const existingIndex = prevForMap.findIndex(
+          (p) => p.stateId === stateId
+        );
 
         let newForMap: StatePreference[];
 
         if (existingIndex >= 0) {
           // If clicking with the same preference, remove it
           if (prevForMap[existingIndex].preference === selectedPreference) {
-            newForMap = prevForMap.filter((_, index) => index !== existingIndex);
+            newForMap = prevForMap.filter(
+              (_, index) => index !== existingIndex
+            );
           } else {
             // Otherwise update the preference
             const updated = [...prevForMap];
-            updated[existingIndex] = { stateId, preference: selectedPreference };
+            updated[existingIndex] = {
+              stateId,
+              preference: selectedPreference,
+            };
             newForMap = updated;
           }
         } else {
           // Add new preference
-          newForMap = [...prevForMap, { stateId, preference: selectedPreference }];
+          newForMap = [
+            ...prevForMap,
+            { stateId, preference: selectedPreference },
+          ];
         }
         return {
           ...prevAll,
@@ -331,8 +335,8 @@ export function StatePreferenceApp() {
           </h1>
           <p className="text-lg text-gray-700 max-w-2xl mx-auto">
             Explore your preferences for living in different places. Select a
-            preference level and click on states/countries to color-code your ideal
-            places to live.
+            preference level and click on states/countries to color-code your
+            ideal places to live.
           </p>
         </div>
 
@@ -479,4 +483,3 @@ export function StatePreferenceApp() {
     </div>
   );
 }
-
