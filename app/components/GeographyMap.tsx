@@ -181,7 +181,7 @@ export const GeographyMap = forwardRef<HTMLDivElement, GeographyMapProps>(
               </button>
             )}
           </div>
-          <div className="text-center text-xs text-gray-400 mt-2">
+          <div className="text-center text-sm font-semibold text-gray-500 mt-2">
             www.statesidliveinmap.com
           </div>
           <PreferenceLegend />

@@ -15,6 +15,7 @@ import {
 import { EU_COUNTRY_NAMES } from "../data/euData";
 import { STATE_NAMES } from "../data/states";
 import LZString from "lz-string";
+import { feature } from "topojson-client";
 
 type MapType = "USA" | "Canada" | "Europe";
 
@@ -41,6 +42,7 @@ export function StatePreferenceApp() {
   const [showShareSuccess, setShowShareSuccess] = useState(false);
   const [selectedMap, setSelectedMap] = useState<MapType>("USA");
   const mapRef = useRef<HTMLDivElement>(null);
+  const [totalGeographies, setTotalGeographies] = useState(0);
 
   const preferences = allPreferences[selectedMap];
 
@@ -87,13 +89,21 @@ export function StatePreferenceApp() {
   };
 
   const currentMapConfig = mapConfigs[selectedMap];
-  const totalGeographies = Object.keys(
-    selectedMap === "USA"
-      ? STATE_NAMES
-      : selectedMap === "Canada"
-      ? CANADA_PROVINCE_NAMES
-      : EU_COUNTRY_NAMES
-  ).length;
+
+  useEffect(() => {
+    fetch(currentMapConfig.geoUrl)
+      .then((res) => res.json())
+      .then((data) => {
+        const features = feature(
+          data,
+          data.objects[Object.keys(data.objects)[0]]
+        ).features;
+        const filteredFeatures = features.filter(
+          (f) => !(currentMapConfig.exclude || []).includes(currentMapConfig.getGeographyId(f))
+        );
+        setTotalGeographies(filteredFeatures.length);
+      });
+  }, [selectedMap, currentMapConfig]);
 
   // Encode preferences to URL parameter
   const encodePreferencesToURL = (prefs: StatePreference[]): string => {
