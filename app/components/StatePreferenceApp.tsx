@@ -60,7 +60,13 @@ export function StatePreferenceApp() {
         geo.properties.name ||
         geo.id,
       getGeographyName: (geo: any) => geo.properties.name,
-      exclude: [],
+      exclude: [
+        "American Samoa",
+        "Guam",
+        "Commonwealth of the Northern Mariana Islands",
+        "Puerto Rico",
+        "United States Virgin Islands",
+      ],
     },
     Canada: {
       geoUrl: "/maps/canada.topo.json",
@@ -94,12 +100,17 @@ export function StatePreferenceApp() {
     fetch(currentMapConfig.geoUrl)
       .then((res) => res.json())
       .then((data) => {
-        const features = feature(
-          data,
-          data.objects[Object.keys(data.objects)[0]]
+        const features = (
+          feature(
+            data,
+            data.objects[Object.keys(data.objects)[0]]
+          ) as any
         ).features;
         const filteredFeatures = features.filter(
-          (f) => !(currentMapConfig.exclude || []).includes(currentMapConfig.getGeographyId(f))
+          (f: any) =>
+            !(currentMapConfig.exclude || []).includes(
+              currentMapConfig.getGeographyId(f)
+            )
         );
         setTotalGeographies(filteredFeatures.length);
       });
