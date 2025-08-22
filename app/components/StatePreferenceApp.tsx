@@ -464,6 +464,16 @@ export function StatePreferenceApp() {
           <p>
             Interactive US States Map • Built with React Router & Tailwind CSS
           </p>
+          <p>
+            <a
+              href="https://twitter.com/ahammer__"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-blue-500"
+            >
+              by @ahammer__
+            </a>
+          </p>
         </div>
       </div>
     </div>
