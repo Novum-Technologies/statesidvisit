@@ -1,74 +1,36 @@
 import React from "react";
 import {
   PREFERENCE_LEVELS,
-  type StatePreference,
   type PreferenceLevel,
+  type StatePreference,
 } from "../data/states";
-import { US_STATE_DATA } from "../data/stateData";
 
-const STATE_NAMES: Record<string, string> = {
-  AL: "Alabama",
-  AK: "Alaska",
-  AZ: "Arizona",
-  AR: "Arkansas",
-  CA: "California",
-  CO: "Colorado",
-  CT: "Connecticut",
-  DE: "Delaware",
-  FL: "Florida",
-  GA: "Georgia",
-  HI: "Hawaii",
-  ID: "Idaho",
-  IL: "Illinois",
-  IN: "Indiana",
-  IA: "Iowa",
-  KS: "Kansas",
-  KY: "Kentucky",
-  LA: "Louisiana",
-  ME: "Maine",
-  MD: "Maryland",
-  MA: "Massachusetts",
-  MI: "Michigan",
-  MN: "Minnesota",
-  MS: "Mississippi",
-  MO: "Missouri",
-  MT: "Montana",
-  NE: "Nebraska",
-  NV: "Nevada",
-  NH: "New Hampshire",
-  NJ: "New Jersey",
-  NM: "New Mexico",
-  NY: "New York",
-  NC: "North Carolina",
-  ND: "North Dakota",
-  OH: "Ohio",
-  OK: "Oklahoma",
-  OR: "Oregon",
-  PA: "Pennsylvania",
-  RI: "Rhode Island",
-  SC: "South Carolina",
-  SD: "South Dakota",
-  TN: "Tennessee",
-  TX: "Texas",
-  UT: "Utah",
-  VT: "Vermont",
-  VA: "Virginia",
-  WA: "Washington",
-  WV: "West Virginia",
-  WI: "Wisconsin",
-  WY: "Wyoming",
-  DC: "District of Columbia",
+import { STATE_NAMES } from "../data/states";
+import {
+  CANADA_PROVINCE_NAMES,
+} from "../data/canadaData";
+import { EU_COUNTRY_NAMES } from "../data/euData";
+
+const ALL_GEOGRAPHIES: Record<string, string> = {
+  ...STATE_NAMES,
+  ...CANADA_PROVINCE_NAMES,
+  ...EU_COUNTRY_NAMES,
 };
 
 interface PreferenceStatsProps {
   preferences: StatePreference[];
   hoveredState: string | null;
+  totalGeographies: number;
+  mapType: "USA" | "Canada" | "Europe";
 }
 
 export function PreferenceStats({
   preferences,
   hoveredState,
+  totalGeographies,
+  mapType,
 }: PreferenceStatsProps) {
+  const geographyTypeName = getGeographyTypeName(mapType, totalGeographies);
   const getStateCounts = () => {
     const counts: Record<PreferenceLevel, number> = {
       never: 0,
@@ -87,18 +49,24 @@ export function PreferenceStats({
 
   const counts = getStateCounts();
   const totalStates = preferences.length;
-  const totalUSStates = 51; // Total US states + DC
-  const progressPercentage = Math.round((totalStates / totalUSStates) * 100);
+  const progressPercentage =
+    totalGeographies > 0
+      ? Math.round((totalStates / totalGeographies) * 100)
+      : 0;
 
   // Milestone calculations
   const getMilestone = () => {
     if (totalStates === 0) return null;
-    if (totalStates === 1) return { emoji: "🎯", text: "First state rated!" };
+    if (totalStates === 1)
+      return { emoji: "🎯", text: `First ${geographyTypeName} rated!` };
     if (totalStates === 5) return { emoji: "🚀", text: "Getting started!" };
     if (totalStates === 10) return { emoji: "🔥", text: "On a roll!" };
-    if (totalStates === 25) return { emoji: "⭐", text: "Halfway hero!" };
-    if (totalStates === 40) return { emoji: "🏆", text: "Almost there!" };
-    if (totalStates === 51) return { emoji: "🎉", text: "Perfect completion!" };
+    if (totalStates >= totalGeographies / 2 && totalGeographies > 10)
+      return { emoji: "⭐", text: "Halfway hero!" };
+    if (totalStates >= totalGeographies * 0.8 && totalGeographies > 10)
+      return { emoji: "🏆", text: "Almost there!" };
+    if (totalStates === totalGeographies && totalGeographies > 0)
+      return { emoji: "🎉", text: "Perfect completion!" };
     return null;
   };
 
@@ -106,54 +74,12 @@ export function PreferenceStats({
 
   const getHoveredStateInfo = () => {
     if (!hoveredState) return null;
-    const state = { id: hoveredState, name: STATE_NAMES[hoveredState] };
+    const state = { id: hoveredState, name: ALL_GEOGRAPHIES[hoveredState] };
     const preference = preferences.find((p) => p.stateId === hoveredState);
     return { state, preference };
   };
 
   const hoveredInfo = getHoveredStateInfo();
-
-  const getQuickStats = () => {
-    const absolutelyStates = preferences
-      .filter((p) => p.preference === "absolutely")
-      .map((p) => p.stateId);
-
-    if (absolutelyStates.length === 0) return null;
-
-    const redStates = absolutelyStates.filter(
-      (id) => US_STATE_DATA[id]?.politicalLeaning === "red"
-    ).length;
-    const blueStates = absolutelyStates.filter(
-      (id) => US_STATE_DATA[id]?.politicalLeaning === "blue"
-    ).length;
-    const majorCityStates = absolutelyStates.filter(
-      (id) => US_STATE_DATA[id]?.hasMajorCity
-    ).length;
-
-    const totalUSPopulation = Object.values(US_STATE_DATA).reduce(
-      (sum, state) => sum + state.population,
-      0
-    );
-
-    const absolutelyPopulation = absolutelyStates.reduce(
-      (sum, stateId) => sum + (US_STATE_DATA[stateId]?.population || 0),
-      0
-    );
-
-    const populationPercentage =
-      totalUSPopulation > 0
-        ? (absolutelyPopulation / totalUSPopulation) * 100
-        : 0;
-
-    return {
-      redStates,
-      blueStates,
-      majorCityStates,
-      populationPercentage,
-    };
-  };
-
-  const quickStats = getQuickStats();
 
   return (
     <div className="bg-white rounded-xl shadow-xl p-6 border border-gray-100 relative overflow-hidden">
@@ -170,7 +96,8 @@ export function PreferenceStats({
           <div className="flex justify-between items-center mb-2">
             <span className="text-sm font-medium text-gray-800">Progress</span>
             <span className="text-sm font-bold text-blue-600">
-              {totalStates}/{totalUSStates} states & DC
+              {totalStates}/{totalGeographies} {geographyTypeName}
+              {mapType === "USA" && " & DC"}
             </span>
           </div>
 
@@ -221,7 +148,9 @@ export function PreferenceStats({
                   </span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <span className="text-gray-700 text-sm">{count} states</span>
+                  <span className="text-gray-700 text-sm">
+                    {count} {geographyTypeName}
+                  </span>
                   {totalStates > 0 && (
                     <span className="text-gray-600 text-sm">
                       ({percentage.toFixed(0)}%)
@@ -232,74 +161,23 @@ export function PreferenceStats({
             );
           })}
         </div>
-
-        {/* Fun facts */}
-        {totalStates > 0 && (
-          <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
-            <h3 className="font-semibold text-gray-900 mb-2">📊 Quick Stats</h3>
-            <div className="text-sm text-gray-800 space-y-2">
-              {quickStats && (
-                <>
-                  <div>
-                    <span className="font-semibold">Political Leaning:</span>
-                    <div className="mt-1 flex w-full h-4 rounded-full overflow-hidden bg-gray-200 border border-gray-300">
-                      <div
-                        className="bg-red-500 h-full"
-                        style={{
-                          width: `${
-                            (quickStats.redStates /
-                              (quickStats.redStates + quickStats.blueStates)) *
-                            100
-                          }%`,
-                        }}
-                      />
-                      <div
-                        className="bg-blue-500 h-full"
-                        style={{
-                          width: `${
-                            (quickStats.blueStates /
-                              (quickStats.redStates + quickStats.blueStates)) *
-                            100
-                          }%`,
-                        }}
-                      />
-                    </div>
-                    <div className="flex justify-between text-xs mt-1">
-                      <span className="text-red-600 font-medium">
-                        {quickStats.redStates} Red
-                      </span>
-                      <span className="text-blue-600 font-medium">
-                        {quickStats.blueStates} Blue
-                      </span>
-                    </div>
-                  </div>
-                  <div>
-                    🏙️{" "}
-                    <span className="font-semibold">
-                      {quickStats.majorCityStates}
-                    </span>{" "}
-                    of your top states have a major city.
-                  </div>
-                  {quickStats.populationPercentage > 0 && (
-                    <div>
-                      🌎 They represent{" "}
-                      <span className="font-bold">
-                        {quickStats.populationPercentage.toFixed(1)}%
-                      </span>{" "}
-                      of the U.S. population.
-                    </div>
-                  )}
-                </>
-              )}
-              {totalStates > 0 && counts.absolutely === 0 && (
-                <div className="text-center text-gray-500 italic py-4">
-                  Select a state as "Absolutely" to see more stats!
-                </div>
-              )}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
 }
+
+const getGeographyTypeName = (
+  mapType: "USA" | "Canada" | "Europe",
+  count: number
+) => {
+  if (mapType === "USA") {
+    return count === 1 ? "state" : "states";
+  }
+  if (mapType === "Canada") {
+    return count === 1 ? "province" : "provinces";
+  }
+  if (mapType === "Europe") {
+    return count === 1 ? "country" : "countries";
+  }
+  return "regions";
+};

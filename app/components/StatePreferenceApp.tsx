@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
-import { AccurateUSMap } from "./AccurateUSMap";
+import { GeographyMap } from "./GeographyMap";
 import { PreferenceSelector } from "./PreferenceSelector";
 import { PreferenceStats } from "./PreferenceStats";
 import { toPng } from "html-to-image";
@@ -9,21 +9,105 @@ import {
   type PreferenceLevel,
   type StatePreference,
 } from "../data/states";
+import {
+  CANADA_PROVINCE_NAMES,
+} from "../data/canadaData";
+import { EU_COUNTRY_NAMES } from "../data/euData";
+import { STATE_NAMES } from "../data/states";
+import LZString from "lz-string";
+
+type MapType = "USA" | "Canada" | "Europe";
+
+type MapConfig = {
+  geoUrl: string;
+  projection: string;
+  projectionConfig: any;
+  getGeographyId: (geo: any) => any;
+  getGeographyName: (geo: any) => any;
+  exclude?: string[];
+};
 
 export function StatePreferenceApp() {
-  const [preferences, setPreferences] = useState<StatePreference[]>([]);
+  const [allPreferences, setAllPreferences] = useState<
+    Record<MapType, StatePreference[]>
+  >({
+    USA: [],
+    Canada: [],
+    Europe: [],
+  });
   const [selectedPreference, setSelectedPreference] =
     useState<PreferenceLevel | null>("never");
   const [hoveredState, setHoveredState] = useState<string | null>(null);
   const [showShareSuccess, setShowShareSuccess] = useState(false);
+  const [selectedMap, setSelectedMap] = useState<MapType>("USA");
   const mapRef = useRef<HTMLDivElement>(null);
+
+  const preferences = allPreferences[selectedMap];
+
+  // Map Configurations
+  const mapConfigs: Record<MapType, MapConfig> = {
+    USA: {
+      geoUrl: "https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json",
+      projection: "geoAlbersUsa",
+      projectionConfig: {
+        scale: 1000,
+        center: [-96, 38],
+      },
+      getGeographyId: (geo: any) =>
+        geo.properties.STUSPS ||
+        geo.properties.name ||
+        geo.id,
+      getGeographyName: (geo: any) => geo.properties.name,
+      exclude: [],
+    },
+    Canada: {
+      geoUrl: "/maps/canada.topo.json",
+      projection: "geoConicConformal",
+      projectionConfig: {
+        rotate: [95, 0],
+        center: [0, 60],
+        parallels: [50, 80],
+        scale: 800,
+      },
+      getGeographyId: (geo: any) => geo.id,
+      getGeographyName: (geo: any) => geo.properties.name,
+      exclude: [],
+    },
+    Europe: {
+      geoUrl: "/maps/eu.topo.json",
+      projection: "geoAzimuthalEqualArea",
+      projectionConfig: {
+        rotate: [-20, -52, 0],
+        scale: 950,
+      },
+      getGeographyId: (geo: any) => geo.id,
+      getGeographyName: (geo: any) => geo.properties.name,
+      exclude: ["IL", "MC", "SM", "AD", "LI", "MT", "VA"],
+    },
+  };
+
+  const currentMapConfig = mapConfigs[selectedMap];
+  const totalGeographies = Object.keys(
+    selectedMap === "USA"
+      ? STATE_NAMES
+      : selectedMap === "Canada"
+      ? CANADA_PROVINCE_NAMES
+      : EU_COUNTRY_NAMES
+  ).length;
 
   // Encode preferences to URL parameter
   const encodePreferencesToURL = (prefs: StatePreference[]): string => {
     if (prefs.length === 0) return "";
     return prefs
-      .map((p) => `${p.stateId}${PREFERENCE_MAP[p.preference]}`)
+      .map((p) => `${p.stateId},${PREFERENCE_MAP[p.preference]}`)
       .join("-");
+  };
+
+  const encodeAllPreferencesToURL = (
+    allPrefs: Record<MapType, StatePreference[]>
+  ) => {
+    const json = JSON.stringify(allPrefs);
+    return LZString.compressToEncodedURIComponent(json);
   };
 
   // Decode preferences from URL parameter
@@ -31,8 +115,9 @@ export function StatePreferenceApp() {
     try {
       if (!encoded) return [];
       return encoded.split("-").map((item) => {
-        const stateId = item.slice(0, 2);
-        const preferenceNum = parseInt(item.slice(2), 10);
+        const parts = item.split(",");
+        const stateId = parts[0];
+        const preferenceNum = parseInt(parts[1], 10);
         return {
           stateId,
           preference: PREFERENCE_MAP_REVERSE[preferenceNum],
@@ -47,14 +132,47 @@ export function StatePreferenceApp() {
   // Load preferences from URL on component mount
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const encoded = urlParams.get("prefs");
+    const mapFromUrl = urlParams.get("map") as MapType;
 
-    if (encoded) {
-      const decodedPrefs = decodePreferencesFromURL(encoded);
-      if (decodedPrefs.length > 0) {
-        setPreferences(decodedPrefs);
+    if (mapFromUrl && ["USA", "Canada", "Europe"].includes(mapFromUrl)) {
+      setSelectedMap(mapFromUrl);
+    }
+
+    const compressedPrefs = urlParams.get("prefs");
+    if (compressedPrefs) {
+      try {
+        const json = LZString.decompressFromEncodedURIComponent(compressedPrefs);
+        const newAllPreferences = JSON.parse(json);
+        setAllPreferences(newAllPreferences);
+        return;
+      } catch (e) {
+        console.error("Failed to decode preferences from URL", e);
       }
     }
+
+    // Backwards compatibility for old URL format
+    const newAllPreferences: Record<MapType, StatePreference[]> = {
+      USA: [],
+      Canada: [],
+      Europe: [],
+    };
+
+    for (const mapType of ["USA", "Canada", "Europe"] as MapType[]) {
+      const key = `prefs${mapType}`;
+      const encoded = urlParams.get(key);
+      if (encoded) {
+        newAllPreferences[mapType] = decodePreferencesFromURL(encoded);
+      }
+    }
+
+    // Backwards compatibility for old URL format
+    const oldEncoded = urlParams.get("prefs");
+    if (oldEncoded && !urlParams.has("prefsUSA")) {
+      newAllPreferences[mapFromUrl || "USA"] =
+        decodePreferencesFromURL(oldEncoded);
+    }
+
+    setAllPreferences(newAllPreferences);
   }, []);
 
   // Update URL when preferences change
@@ -81,26 +199,33 @@ export function StatePreferenceApp() {
         return;
       }
 
-      setPreferences((prev) => {
-        // Check if state already has a preference
-        const existingIndex = prev.findIndex((p) => p.stateId === stateId);
+      setAllPreferences((prevAll) => {
+        const prevForMap = prevAll[selectedMap];
+        const existingIndex = prevForMap.findIndex((p) => p.stateId === stateId);
+
+        let newForMap: StatePreference[];
 
         if (existingIndex >= 0) {
           // If clicking with the same preference, remove it
-          if (prev[existingIndex].preference === selectedPreference) {
-            return prev.filter((_, index) => index !== existingIndex);
+          if (prevForMap[existingIndex].preference === selectedPreference) {
+            newForMap = prevForMap.filter((_, index) => index !== existingIndex);
+          } else {
+            // Otherwise update the preference
+            const updated = [...prevForMap];
+            updated[existingIndex] = { stateId, preference: selectedPreference };
+            newForMap = updated;
           }
-          // Otherwise update the preference
-          const updated = [...prev];
-          updated[existingIndex] = { stateId, preference: selectedPreference };
-          return updated;
         } else {
           // Add new preference
-          return [...prev, { stateId, preference: selectedPreference }];
+          newForMap = [...prevForMap, { stateId, preference: selectedPreference }];
         }
+        return {
+          ...prevAll,
+          [selectedMap]: newForMap,
+        };
       });
     },
-    [selectedPreference]
+    [selectedPreference, selectedMap]
   );
 
   const handlePreferenceSelect = useCallback(
@@ -132,18 +257,20 @@ export function StatePreferenceApp() {
   }, [mapRef]);
 
   const clearAllPreferences = () => {
-    setPreferences([]);
+    setAllPreferences({
+      USA: [],
+      Canada: [],
+      Europe: [],
+    });
     setSelectedPreference(null);
   };
 
   // Share functionality
   const handleShare = async () => {
-    const encoded = encodePreferencesToURL(preferences);
+    const encodedString = encodeAllPreferencesToURL(allPreferences);
     const url = new URL(window.location.origin);
-
-    if (encoded) {
-      url.searchParams.set("prefs", encoded);
-    }
+    url.searchParams.set("prefs", encodedString);
+    url.searchParams.set("map", selectedMap);
 
     const shareUrl = url.toString();
 
@@ -182,10 +309,29 @@ export function StatePreferenceApp() {
             🗺️ US States Living Preference Map
           </h1>
           <p className="text-lg text-gray-700 max-w-2xl mx-auto">
-            Explore your preferences for living in different US states. Select a
-            preference level and click on states to color-code your ideal places
-            to live.
+            Explore your preferences for living in different places. Select a
+            preference level and click on states/countries to color-code your ideal
+            places to live.
           </p>
+        </div>
+
+        {/* Map Selector */}
+        <div className="flex justify-center mb-6">
+          <div className="bg-white rounded-lg shadow-md p-1 flex space-x-1">
+            {(["USA", "Canada", "Europe"] as MapType[]).map((mapType) => (
+              <button
+                key={mapType}
+                onClick={() => setSelectedMap(mapType)}
+                className={`px-4 py-2 text-sm font-medium rounded-md transition-colors duration-200 ${
+                  selectedMap === mapType
+                    ? "bg-blue-600 text-white shadow"
+                    : "text-gray-600 hover:bg-gray-100"
+                }`}
+              >
+                {mapType}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Main content grid - Two columns for maximum map space */}
@@ -229,12 +375,19 @@ export function StatePreferenceApp() {
 
           {/* Right side - Large Map and Stats */}
           <div className="xl:col-span-3">
-            <AccurateUSMap
+            <GeographyMap
               ref={mapRef}
+              geoUrl={currentMapConfig.geoUrl}
               preferences={preferences}
               selectedPreference={selectedPreference}
-              onStateClick={handleStateClick}
-              onStateHover={handleStateHover}
+              onGeographyClick={handleStateClick}
+              onGeographyHover={handleStateHover}
+              projection={currentMapConfig.projection}
+              projectionConfig={currentMapConfig.projectionConfig}
+              getGeographyId={currentMapConfig.getGeographyId}
+              getGeographyName={currentMapConfig.getGeographyName}
+              showDCButton={selectedMap === "USA"}
+              exclude={currentMapConfig.exclude}
             />
 
             {/* Instructions */}
@@ -249,6 +402,8 @@ export function StatePreferenceApp() {
               <PreferenceStats
                 preferences={preferences}
                 hoveredState={hoveredState}
+                totalGeographies={totalGeographies}
+                mapType={selectedMap}
               />
             </div>
 
@@ -293,3 +448,4 @@ export function StatePreferenceApp() {
     </div>
   );
 }
+
