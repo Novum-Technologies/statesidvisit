@@ -73,7 +73,7 @@ export function StatePreferenceApp() {
       projection: "geoConicConformal",
       projectionConfig: {
         rotate: [95, 0],
-        center: [0, 60],
+        center: [0, 62],
         parallels: [50, 80],
         scale: 800,
       },
