@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect, useRef } from "react";
 import { GeographyMap } from "./GeographyMap";
 import { PreferenceSelector } from "./PreferenceSelector";
 import { PreferenceStats } from "./PreferenceStats";
+import { CountrySelector } from "./CountrySelector";
 import { toPng } from "html-to-image";
 import {
   PREFERENCE_MAP,
@@ -12,10 +13,11 @@ import {
 import { CANADA_PROVINCE_NAMES } from "../data/canadaData";
 import { EU_COUNTRY_NAMES } from "../data/euData";
 import { STATE_NAMES } from "../data/states";
+import { JAPAN_PREFECTURE_NAMES } from "../data/japanData";
 import LZString from "lz-string";
 import { feature } from "topojson-client";
 
-type MapType = "USA" | "Canada" | "Europe";
+type MapType = "USA" | "Canada" | "Europe" | "Japan";
 
 type MapConfig = {
   geoUrl: string;
@@ -33,6 +35,7 @@ export function StatePreferenceApp() {
     USA: [],
     Canada: [],
     Europe: [],
+    Japan: [],
   });
   const [selectedPreference, setSelectedPreference] =
     useState<PreferenceLevel | null>("never");
@@ -87,6 +90,39 @@ export function StatePreferenceApp() {
       getGeographyId: (geo: any) => geo.id,
       getGeographyName: (geo: any) => geo.properties.name,
       exclude: ["IL", "MC", "SM", "AD", "LI", "MT", "VA"],
+    },
+    Japan: {
+      geoUrl: "/maps/japan.topo.json",
+      projection: "geoMercator",
+      projectionConfig: {
+        center: [138, 38],
+        scale: 1300,
+      },
+      getGeographyId: (geo: any) =>
+        geo.id || geo.properties.id || geo.properties.ID,
+      getGeographyName: (geo: any) => {
+        const id = geo.id || geo.properties.id || geo.properties.ID;
+        // Try multiple name sources first
+        const directName =
+          geo.properties.name || geo.properties.NAME || geo.properties.name_en;
+        if (directName) return directName;
+
+        // Try our mapping with the ID as-is, or with string conversion
+        const mappedName =
+          JAPAN_PREFECTURE_NAMES[String(id)] || JAPAN_PREFECTURE_NAMES[id];
+        if (mappedName) return mappedName;
+
+        // If it's a number, try zero-padding it
+        if (typeof id === "number" || !isNaN(Number(id))) {
+          const paddedId = String(id).padStart(2, "0");
+          const paddedName = JAPAN_PREFECTURE_NAMES[paddedId];
+          if (paddedName) return paddedName;
+        }
+
+        // Fallback to ID
+        return String(id);
+      },
+      exclude: [],
     },
   };
 
@@ -148,7 +184,10 @@ export function StatePreferenceApp() {
     const urlParams = new URLSearchParams(window.location.search);
     const mapFromUrl = urlParams.get("map") as MapType;
 
-    if (mapFromUrl && ["USA", "Canada", "Europe"].includes(mapFromUrl)) {
+    if (
+      mapFromUrl &&
+      ["USA", "Canada", "Europe", "Japan"].includes(mapFromUrl)
+    ) {
       setSelectedMap(mapFromUrl);
     }
 
@@ -170,9 +209,10 @@ export function StatePreferenceApp() {
       USA: [],
       Canada: [],
       Europe: [],
+      Japan: [],
     };
 
-    for (const mapType of ["USA", "Canada", "Europe"] as MapType[]) {
+    for (const mapType of ["USA", "Canada", "Europe", "Japan"] as MapType[]) {
       const key = `prefs${mapType}`;
       const encoded = urlParams.get(key);
       if (encoded) {
@@ -188,6 +228,35 @@ export function StatePreferenceApp() {
     }
 
     setAllPreferences(newAllPreferences);
+  }, []);
+
+  // Keyboard shortcuts for preference selection
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      // Only handle number keys 1-5 and ignore if user is typing in an input
+      if (
+        event.target instanceof HTMLInputElement ||
+        event.target instanceof HTMLTextAreaElement
+      ) {
+        return;
+      }
+
+      const preferenceKeys: Record<string, PreferenceLevel> = {
+        "1": "never",
+        "2": "reluctantly",
+        "3": "maybe",
+        "4": "willing",
+        "5": "absolutely",
+      };
+
+      if (preferenceKeys[event.key]) {
+        event.preventDefault();
+        setSelectedPreference(preferenceKeys[event.key]);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyPress);
+    return () => window.removeEventListener("keydown", handleKeyPress);
   }, []);
 
   // Update URL when preferences change
@@ -286,6 +355,7 @@ export function StatePreferenceApp() {
       USA: [],
       Canada: [],
       Europe: [],
+      Japan: [],
     });
     setSelectedPreference(null);
   };
@@ -331,41 +401,30 @@ export function StatePreferenceApp() {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            🗺️ US States Living Preference Map
+            🗺️ Global Living Preference Map
           </h1>
           <p className="text-lg text-gray-700 max-w-2xl mx-auto">
-            Explore your preferences for living in different places. Select a
-            preference level and click on states/countries to color-code your
-            ideal places to live.
+            Explore your preferences for living in different places around the
+            world. Select a preference level and click on regions to color-code
+            your ideal places to live.
           </p>
         </div>
 
-        {/* Map Selector */}
-        <div className="flex justify-center mb-6">
-          <div className="bg-white rounded-lg shadow-md p-1 flex space-x-1">
-            {(["USA", "Canada", "Europe"] as MapType[]).map((mapType) => (
-              <button
-                key={mapType}
-                onClick={() => setSelectedMap(mapType)}
-                className={`px-4 py-2 text-sm font-medium rounded-md transition-colors duration-200 ${
-                  selectedMap === mapType
-                    ? "bg-blue-600 text-white shadow"
-                    : "text-gray-600 hover:bg-gray-100"
-                }`}
-              >
-                {mapType}
-              </button>
-            ))}
-          </div>
+        {/* Preference Selector - Now above the map */}
+        <div className="mb-4">
+          <PreferenceSelector
+            selectedPreference={selectedPreference}
+            onPreferenceSelect={handlePreferenceSelect}
+          />
         </div>
 
-        {/* Main content grid - Two columns for maximum map space */}
-        <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
-          {/* Left sidebar - Controls only */}
+        {/* Main content grid - Sidebar for country selection and main content for map */}
+        <div className="grid grid-cols-1 xl:grid-cols-5 gap-6">
+          {/* Left sidebar - Country/Region selection */}
           <div className="xl:col-span-1 space-y-6">
-            <PreferenceSelector
-              selectedPreference={selectedPreference}
-              onPreferenceSelect={handlePreferenceSelect}
+            <CountrySelector
+              selectedMap={selectedMap}
+              onMapSelect={setSelectedMap}
             />
 
             {/* Action buttons - Desktop */}
@@ -399,7 +458,7 @@ export function StatePreferenceApp() {
           </div>
 
           {/* Right side - Large Map and Stats */}
-          <div className="xl:col-span-3">
+          <div className="xl:col-span-4">
             <GeographyMap
               ref={mapRef}
               geoUrl={currentMapConfig.geoUrl}

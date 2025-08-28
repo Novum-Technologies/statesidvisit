@@ -6,22 +6,22 @@ import {
 } from "../data/states";
 
 import { STATE_NAMES } from "../data/states";
-import {
-  CANADA_PROVINCE_NAMES,
-} from "../data/canadaData";
+import { CANADA_PROVINCE_NAMES } from "../data/canadaData";
 import { EU_COUNTRY_NAMES } from "../data/euData";
+import { JAPAN_PREFECTURE_NAMES } from "../data/japanData";
 
 const ALL_GEOGRAPHIES: Record<string, string> = {
   ...STATE_NAMES,
   ...CANADA_PROVINCE_NAMES,
   ...EU_COUNTRY_NAMES,
+  ...JAPAN_PREFECTURE_NAMES,
 };
 
 interface PreferenceStatsProps {
   preferences: StatePreference[];
   hoveredState: string | null;
   totalGeographies: number;
-  mapType: "USA" | "Canada" | "Europe";
+  mapType: "USA" | "Canada" | "Europe" | "Japan";
 }
 
 export function PreferenceStats({
@@ -129,7 +129,7 @@ export function PreferenceStats({
           {(
             Object.entries(PREFERENCE_LEVELS) as [
               PreferenceLevel,
-              (typeof PREFERENCE_LEVELS)[PreferenceLevel],
+              (typeof PREFERENCE_LEVELS)[PreferenceLevel]
             ][]
           ).map(([level, config]) => {
             const count = counts[level];
@@ -167,7 +167,7 @@ export function PreferenceStats({
 }
 
 const getGeographyTypeName = (
-  mapType: "USA" | "Canada" | "Europe",
+  mapType: "USA" | "Canada" | "Europe" | "Japan",
   count: number
 ) => {
   if (mapType === "USA") {
@@ -178,6 +178,9 @@ const getGeographyTypeName = (
   }
   if (mapType === "Europe") {
     return count === 1 ? "country" : "countries";
+  }
+  if (mapType === "Japan") {
+    return count === 1 ? "prefecture" : "prefectures";
   }
   return "regions";
 };
