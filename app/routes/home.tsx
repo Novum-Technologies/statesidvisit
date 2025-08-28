@@ -2,11 +2,12 @@ import type { Route } from "./+types/home";
 import { StatePreferenceApp } from "../components/StatePreferenceApp";
 
 export function meta({}: Route.MetaArgs) {
-  const title = "Global Living Preference Map - USA, Canada, Europe & Japan";
+  const title =
+    "Global Living Preference Map - World, Asia, USA, Canada, Europe, Americas, Brazil, UK, France, Germany, Poland & Japan";
   const description =
-    "Create and share your interactive living preference map across 4 regions: USA (50 states + DC), Canada (13 provinces), Europe (30+ countries), and Japan (47 prefectures). Mark places you'd love to live, avoid, or are unsure about. Perfect for planning relocations, travel, or exploring global livability.";
+    "Create and share your interactive living preference map across 12 regions: World (195+ countries), Asia (47+ countries), USA (50 states), Canada (13 provinces), Europe (30+ countries), Americas (28+ countries), Brazil (26 states), Great Britain (12 regions), France (18 regions), Germany (16 states), Poland (16 voivodeships), and Japan (47 prefectures). Mark places you'd love to live, avoid, or are unsure about. Perfect for planning relocations, travel, or exploring global livability.";
   const keywords =
-    "living preference map, global livability, USA states map, Canada provinces, Europe countries, Japan prefectures, where to live, best places to live, state rankings, relocate, move abroad, interactive map, preference tool, travel planning, livability rankings";
+    "living preference map, global livability, world countries map, Asia countries map, USA states map, Canada provinces, Europe countries, Americas countries, North America countries, South America countries, Brazil states, UK regions, Great Britain regions, France regions, Germany states, Poland voivodeships, Japan prefectures, where to live, best places to live, country rankings, state rankings, relocate, move abroad, interactive map, preference tool, travel planning, livability rankings, Asian countries, world map, global map, international living, expat destinations";
   const imageUrl = "https://statesidliveinmap.com/social-share-image.png";
   const url = "https://statesidliveinmap.com";
 
@@ -25,7 +26,7 @@ export function meta({}: Route.MetaArgs) {
 
     // Language and region
     { name: "language", content: "en" },
-    { name: "geo.region", content: "US" },
+    { name: "geo.region", content: "WORLD" },
 
     // App-specific
     { name: "application-name", content: "Global Living Preference Map" },
@@ -39,7 +40,8 @@ export function meta({}: Route.MetaArgs) {
     { property: "og:url", content: url },
     {
       property: "og:title",
-      content: "Global Living Preference Map - USA, Canada, Europe & Japan",
+      content:
+        "Global Living Preference Map - World, Asia, USA, Canada, Europe, Americas, Brazil, UK, France, Germany, Poland & Japan",
     },
     { property: "og:description", content: description },
     { property: "og:image", content: imageUrl },
@@ -48,7 +50,7 @@ export function meta({}: Route.MetaArgs) {
     {
       property: "og:image:alt",
       content:
-        "Interactive global living preference map showing USA, Canada, Europe, and Japan",
+        "Interactive global living preference map showing World, Asia, USA, Canada, Europe, Americas, Brazil, UK, France, Germany, Poland, and Japan",
     },
     { property: "og:site_name", content: "States I'd Live In Map" },
     { property: "og:locale", content: "en_US" },
@@ -58,13 +60,15 @@ export function meta({}: Route.MetaArgs) {
     { property: "twitter:url", content: url },
     {
       property: "twitter:title",
-      content: "Global Living Preference Map - USA, Canada, Europe & Japan",
+      content:
+        "Global Living Preference Map - World, Asia, USA, Canada, Europe, Americas, Brazil, UK, France, Germany, Poland & Japan",
     },
     { property: "twitter:description", content: description },
     { property: "twitter:image", content: imageUrl },
     {
       property: "twitter:image:alt",
-      content: "Interactive global living preference map",
+      content:
+        "Interactive global living preference map with 12 regions including World, Asia, USA, Canada, Europe, Americas, Brazil, UK, France, Germany, Poland, and Japan",
     },
     { property: "twitter:creator", content: "@ahammer__" },
     { property: "twitter:site", content: "@ahammer__" },

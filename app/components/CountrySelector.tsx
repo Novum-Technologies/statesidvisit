@@ -4,6 +4,9 @@ type MapType =
   | "USA"
   | "Canada"
   | "Europe"
+  | "Americas"
+  | "World"
+  | "Asia"
   | "Brazil"
   | "France"
   | "Germany"
@@ -28,15 +31,23 @@ const countryData = {
     },
     { id: "Canada" as MapType, name: "Canada", flag: "🇨🇦", available: true },
     { id: "Europe" as MapType, name: "Europe", flag: "🇪🇺", available: true },
+    { id: "World" as MapType, name: "World", flag: "🌍", available: true },
   ],
 
   // Asia-Pacific
   asiaPacific: [
+    { id: "Asia" as MapType, name: "Asia", flag: "🌏", available: true },
     { id: "Japan" as MapType, name: "Japan", flag: "🇯🇵", available: true },
   ],
 
   // Americas
   americas: [
+    {
+      id: "Americas" as MapType,
+      name: "Americas",
+      flag: "🌎",
+      available: true,
+    },
     { id: "Brazil" as MapType, name: "Brazil", flag: "🇧🇷", available: true },
   ],
 

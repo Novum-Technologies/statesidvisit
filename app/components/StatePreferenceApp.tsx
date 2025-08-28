@@ -19,6 +19,9 @@ import { FRANCE_REGION_NAMES } from "../data/franceData";
 import { GERMANY_STATE_NAMES } from "../data/germanyData";
 import { POLAND_VOIVODESHIP_NAMES } from "../data/polandData";
 import { JAPAN_PREFECTURE_NAMES } from "../data/japanData";
+import { AMERICAS_COUNTRY_NAMES } from "../data/americasData";
+import { WORLD_COUNTRY_NAMES } from "../data/worldData";
+import { ASIA_COUNTRY_NAMES } from "../data/asiaData";
 import LZString from "lz-string";
 import { feature } from "topojson-client";
 
@@ -26,6 +29,9 @@ type MapType =
   | "USA"
   | "Canada"
   | "Europe"
+  | "Americas"
+  | "World"
+  | "Asia"
   | "Brazil"
   | "France"
   | "Germany"
@@ -49,6 +55,9 @@ export function StatePreferenceApp() {
     USA: [],
     Canada: [],
     Europe: [],
+    Americas: [],
+    World: [],
+    Asia: [],
     Brazil: [],
     France: [],
     Germany: [],
@@ -109,6 +118,50 @@ export function StatePreferenceApp() {
       getGeographyId: (geo: any) => geo.id,
       getGeographyName: (geo: any) => geo.properties.name,
       exclude: ["IL", "MC", "SM", "AD", "LI", "MT", "VA"],
+    },
+    Americas: {
+      geoUrl: "/maps/americas-only.topo.json",
+      projection: "geoAzimuthalEqualArea",
+      projectionConfig: {
+        rotate: [90, 0, 0],
+        center: [-8, 1],
+        scale: 350,
+      },
+      getGeographyId: (geo: any) => geo.id || geo.properties.name,
+      getGeographyName: (geo: any) => {
+        const name = geo.properties.name;
+        return AMERICAS_COUNTRY_NAMES[name] || name;
+      },
+      exclude: [],
+    },
+    World: {
+      geoUrl: "/maps/world.topo.json",
+      projection: "geoNaturalEarth1",
+      projectionConfig: {
+        scale: 160,
+        center: [14, 5],
+      },
+      getGeographyId: (geo: any) => geo.id || geo.properties.name,
+      getGeographyName: (geo: any) => {
+        const name = geo.properties.name;
+        return WORLD_COUNTRY_NAMES[name] || name;
+      },
+      exclude: ["010", "260"], // Antarctica and French Southern Antarctic Lands
+    },
+    Asia: {
+      geoUrl: "/maps/asia.topo.json",
+      projection: "geoAzimuthalEqualArea",
+      projectionConfig: {
+        rotate: [-100, -30, 0],
+        center: [0, 0],
+        scale: 400,
+      },
+      getGeographyId: (geo: any) => geo.id || geo.properties.name,
+      getGeographyName: (geo: any) => {
+        const name = geo.properties.name;
+        return ASIA_COUNTRY_NAMES[name] || name;
+      },
+      exclude: [],
     },
     Brazil: {
       geoUrl: "/maps/brazil.topo.json",
@@ -332,6 +385,9 @@ export function StatePreferenceApp() {
           "USA",
           "Canada",
           "Europe",
+          "Americas",
+          "World",
+          "Asia",
           "Brazil",
           "France",
           "Germany",
@@ -356,6 +412,9 @@ export function StatePreferenceApp() {
           USA: [],
           Canada: [],
           Europe: [],
+          Americas: [],
+          World: [],
+          Asia: [],
           Brazil: [],
           France: [],
           Germany: [],
@@ -391,6 +450,9 @@ export function StatePreferenceApp() {
       USA: [],
       Canada: [],
       Europe: [],
+      Americas: [],
+      World: [],
+      Asia: [],
       Brazil: [],
       France: [],
       Germany: [],
@@ -403,6 +465,9 @@ export function StatePreferenceApp() {
       "USA",
       "Canada",
       "Europe",
+      "Americas",
+      "World",
+      "Asia",
       "Brazil",
       "France",
       "Germany",
@@ -552,6 +617,9 @@ export function StatePreferenceApp() {
       USA: [],
       Canada: [],
       Europe: [],
+      Americas: [],
+      World: [],
+      Asia: [],
       Brazil: [],
       France: [],
       Germany: [],
@@ -567,6 +635,9 @@ export function StatePreferenceApp() {
     USA: "us",
     Canada: "ca",
     Europe: "eu",
+    Americas: "am",
+    World: "wo",
+    Asia: "as",
     Brazil: "br",
     France: "fr",
     Germany: "de",

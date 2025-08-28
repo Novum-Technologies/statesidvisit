@@ -14,11 +14,17 @@ import { FRANCE_REGION_NAMES } from "../data/franceData";
 import { GERMANY_STATE_NAMES } from "../data/germanyData";
 import { POLAND_VOIVODESHIP_NAMES } from "../data/polandData";
 import { JAPAN_PREFECTURE_NAMES } from "../data/japanData";
+import { AMERICAS_COUNTRY_NAMES } from "../data/americasData";
+import { WORLD_COUNTRY_NAMES } from "../data/worldData";
+import { ASIA_COUNTRY_NAMES } from "../data/asiaData";
 
 const ALL_GEOGRAPHIES: Record<string, string> = {
   ...STATE_NAMES,
   ...CANADA_PROVINCE_NAMES,
   ...EU_COUNTRY_NAMES,
+  ...AMERICAS_COUNTRY_NAMES,
+  ...WORLD_COUNTRY_NAMES,
+  ...ASIA_COUNTRY_NAMES,
   ...BRAZIL_STATE_NAMES,
   ...GREAT_BRITAIN_COUNTY_NAMES,
   ...FRANCE_REGION_NAMES,
@@ -35,6 +41,9 @@ interface PreferenceStatsProps {
     | "USA"
     | "Canada"
     | "Europe"
+    | "Americas"
+    | "World"
+    | "Asia"
     | "Brazil"
     | "France"
     | "Germany"
@@ -190,6 +199,9 @@ const getGeographyTypeName = (
     | "USA"
     | "Canada"
     | "Europe"
+    | "Americas"
+    | "World"
+    | "Asia"
     | "Brazil"
     | "France"
     | "Germany"
@@ -205,6 +217,15 @@ const getGeographyTypeName = (
     return count === 1 ? "province" : "provinces";
   }
   if (mapType === "Europe") {
+    return count === 1 ? "country" : "countries";
+  }
+  if (mapType === "Americas") {
+    return count === 1 ? "country" : "countries";
+  }
+  if (mapType === "World") {
+    return count === 1 ? "country" : "countries";
+  }
+  if (mapType === "Asia") {
     return count === 1 ? "country" : "countries";
   }
   if (mapType === "Brazil") {
