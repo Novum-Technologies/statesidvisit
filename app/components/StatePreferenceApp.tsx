@@ -554,11 +554,9 @@ export function StatePreferenceApp() {
         let newForMap: StatePreference[];
 
         if (existingIndex >= 0) {
-          // If clicking with the same preference, remove it
+          // If clicking with the same preference, do nothing
           if (prevForMap[existingIndex].preference === selectedPreference) {
-            newForMap = prevForMap.filter(
-              (_, index) => index !== existingIndex
-            );
+            return prevAll; // No change
           } else {
             // Otherwise update the preference
             const updated = [...prevForMap];
