@@ -1,6 +1,6 @@
 import React from "react";
 
-type MapType = "USA" | "Canada" | "Europe" | "Japan";
+type MapType = "USA" | "Canada" | "Europe" | "Brazil" | "Japan";
 
 interface CountrySelectorProps {
   selectedMap: MapType;
@@ -25,11 +25,17 @@ const countryData = {
   asiaPacific: [
     { id: "Japan" as MapType, name: "Japan", flag: "🇯🇵", available: true },
   ],
+
+  // Americas
+  americas: [
+    { id: "Brazil" as MapType, name: "Brazil", flag: "🇧🇷", available: true },
+  ],
 };
 
 const regionLabels = {
   popular: "🌟 Most Popular",
   asiaPacific: "🌏 Asia-Pacific",
+  americas: "🌎 Americas",
 };
 
 export function CountrySelector({
@@ -80,6 +86,7 @@ export function CountrySelector({
 
       {renderCountryGroup(countryData.popular, regionLabels.popular)}
       {renderCountryGroup(countryData.asiaPacific, regionLabels.asiaPacific)}
+      {renderCountryGroup(countryData.americas, regionLabels.americas)}
 
       <div className="mt-6 pt-4 border-t border-gray-200">
         <p className="text-xs text-gray-500 px-3 leading-relaxed">

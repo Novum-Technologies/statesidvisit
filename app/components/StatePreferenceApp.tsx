@@ -13,11 +13,12 @@ import {
 import { CANADA_PROVINCE_NAMES } from "../data/canadaData";
 import { EU_COUNTRY_NAMES } from "../data/euData";
 import { STATE_NAMES } from "../data/states";
+import { BRAZIL_STATE_NAMES } from "../data/brazilData";
 import { JAPAN_PREFECTURE_NAMES } from "../data/japanData";
 import LZString from "lz-string";
 import { feature } from "topojson-client";
 
-type MapType = "USA" | "Canada" | "Europe" | "Japan";
+type MapType = "USA" | "Canada" | "Europe" | "Brazil" | "Japan";
 
 type MapConfig = {
   geoUrl: string;
@@ -35,6 +36,7 @@ export function StatePreferenceApp() {
     USA: [],
     Canada: [],
     Europe: [],
+    Brazil: [],
     Japan: [],
   });
   const [selectedPreference, setSelectedPreference] =
@@ -91,6 +93,25 @@ export function StatePreferenceApp() {
       getGeographyName: (geo: any) => geo.properties.name,
       exclude: ["IL", "MC", "SM", "AD", "LI", "MT", "VA"],
     },
+    Brazil: {
+      geoUrl: "/maps/brazil.topo.json",
+      projection: "geoAzimuthalEqualArea",
+      projectionConfig: {
+        rotate: [55, 0],
+        center: [0, -15],
+        scale: 700,
+      },
+      getGeographyId: (geo: any) => geo.properties.sigla || geo.properties.id,
+      getGeographyName: (geo: any) => {
+        // Use the name from properties first, then fall back to our mapping
+        return (
+          geo.properties.name ||
+          BRAZIL_STATE_NAMES[geo.properties.sigla] ||
+          geo.properties.sigla
+        );
+      },
+      exclude: [],
+    },
     Japan: {
       geoUrl: "/maps/japan.topo.json",
       projection: "geoMercator",
@@ -132,9 +153,18 @@ export function StatePreferenceApp() {
     fetch(currentMapConfig.geoUrl)
       .then((res) => res.json())
       .then((data) => {
-        const features = (
-          feature(data, data.objects[Object.keys(data.objects)[0]]) as any
-        ).features;
+        let features;
+        // Handle both TopoJSON and GeoJSON formats
+        if (data.type === "FeatureCollection") {
+          // GeoJSON format (like Brazil)
+          features = data.features;
+        } else {
+          // TopoJSON format (like other maps)
+          features = (
+            feature(data, data.objects[Object.keys(data.objects)[0]]) as any
+          ).features;
+        }
+
         const filteredFeatures = features.filter(
           (f: any) =>
             !(currentMapConfig.exclude || []).includes(
@@ -186,7 +216,7 @@ export function StatePreferenceApp() {
 
     if (
       mapFromUrl &&
-      ["USA", "Canada", "Europe", "Japan"].includes(mapFromUrl)
+      ["USA", "Canada", "Europe", "Brazil", "Japan"].includes(mapFromUrl)
     ) {
       setSelectedMap(mapFromUrl);
     }
@@ -209,10 +239,17 @@ export function StatePreferenceApp() {
       USA: [],
       Canada: [],
       Europe: [],
+      Brazil: [],
       Japan: [],
     };
 
-    for (const mapType of ["USA", "Canada", "Europe", "Japan"] as MapType[]) {
+    for (const mapType of [
+      "USA",
+      "Canada",
+      "Europe",
+      "Brazil",
+      "Japan",
+    ] as MapType[]) {
       const key = `prefs${mapType}`;
       const encoded = urlParams.get(key);
       if (encoded) {
@@ -355,6 +392,7 @@ export function StatePreferenceApp() {
       USA: [],
       Canada: [],
       Europe: [],
+      Brazil: [],
       Japan: [],
     });
     setSelectedPreference(null);
