@@ -11,8 +11,8 @@ export function PreferenceSelector({
   onPreferenceSelect,
 }: PreferenceSelectorProps) {
   return (
-    <div className="bg-white rounded-lg shadow-md p-4 border border-gray-200">
-      <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+    <div className="bg-white rounded-lg shadow-md p-3 border border-gray-200">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
         <div className="flex-shrink-0">
           <h2 className="text-lg font-bold text-gray-900">
             Living Preference:
@@ -33,7 +33,7 @@ export function PreferenceSelector({
               <button
                 key={level}
                 onClick={() => onPreferenceSelect(level)}
-                className={`p-3 rounded-lg border-2 transition-all duration-200 text-center relative ${
+                className={`p-2 rounded-md border-2 transition-all duration-200 text-center relative ${
                   selectedPreference === level
                     ? "border-blue-500 bg-blue-50 shadow-md"
                     : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
@@ -42,12 +42,12 @@ export function PreferenceSelector({
                 <div className="absolute top-1 right-1 text-xs text-gray-400 font-mono">
                   {index + 1}
                 </div>
-                <div className="flex flex-col items-center space-y-1">
+                <div className="flex flex-col items-center space-y-0.5">
                   <div
-                    className="w-4 h-4 rounded-full border border-white shadow-sm"
+                    className="w-3 h-3 rounded-full border border-white shadow-sm"
                     style={{ backgroundColor: config.color }}
                   />
-                  <div className="font-medium text-sm text-gray-800">
+                  <div className="font-medium text-xs text-gray-800">
                     {config.label}
                   </div>
                   {selectedPreference === level && (
@@ -59,16 +59,23 @@ export function PreferenceSelector({
           </div>
         </div>
 
-        {selectedPreference && (
-          <div className="flex-shrink-0 hidden lg:block">
-            <div className="px-3 py-2 bg-blue-50 rounded-lg border border-blue-200">
-              <p className="text-sm text-blue-800 font-medium">
-                🎯 Click regions to mark as "
-                {PREFERENCE_LEVELS[selectedPreference].label}"
-              </p>
+        <div className="flex-shrink-0 flex flex-col gap-2">
+          {selectedPreference && (
+            <div className="hidden lg:block">
+              <div className="px-3 py-2 bg-blue-50 rounded-lg border border-blue-200">
+                <p className="text-sm text-blue-800 font-medium">
+                  🎯 Click regions to mark as "
+                  {PREFERENCE_LEVELS[selectedPreference].label}"
+                </p>
+              </div>
             </div>
+          )}
+          <div className="px-3 py-1 bg-gray-50 rounded-md border border-gray-200">
+            <p className="text-xs text-gray-500 font-mono text-center">
+              🌍 statesidlivein.com
+            </p>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
