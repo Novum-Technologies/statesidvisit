@@ -410,6 +410,14 @@ export function StatePreferenceApp() {
           </p>
         </div>
 
+        {/* Mobile Region Selector - Shows above preferences on mobile */}
+        <div className="mb-4 xl:hidden">
+          <CountrySelector
+            selectedMap={selectedMap}
+            onMapSelect={setSelectedMap}
+          />
+        </div>
+
         {/* Preference Selector - Now above the map */}
         <div className="mb-4">
           <PreferenceSelector
@@ -420,8 +428,8 @@ export function StatePreferenceApp() {
 
         {/* Main content grid - Sidebar for country selection and main content for map */}
         <div className="grid grid-cols-1 xl:grid-cols-5 gap-6">
-          {/* Left sidebar - Country/Region selection */}
-          <div className="xl:col-span-1 space-y-6">
+          {/* Left sidebar - Country/Region selection (Desktop only) */}
+          <div className="xl:col-span-1 space-y-6 hidden xl:block">
             <CountrySelector
               selectedMap={selectedMap}
               onMapSelect={setSelectedMap}
@@ -534,7 +542,7 @@ export function StatePreferenceApp() {
               rel="noopener noreferrer"
               className="hover:text-blue-500"
             >
-              by @ahammer__
+              For latest updates, follow @ahammer__ on Twitter
             </a>
           </p>
         </div>

@@ -39,7 +39,7 @@ export function PreferenceSelector({
                     : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
                 }`}
               >
-                <div className="absolute top-1 right-1 text-xs text-gray-400 font-mono">
+                <div className="absolute top-1 right-1 text-xs text-gray-400 font-mono hidden sm:block">
                   {index + 1}
                 </div>
                 <div className="flex flex-col items-center space-y-0.5">
@@ -60,16 +60,20 @@ export function PreferenceSelector({
         </div>
 
         <div className="flex-shrink-0 flex flex-col gap-2">
-          {selectedPreference && (
-            <div className="hidden lg:block">
-              <div className="px-3 py-2 bg-blue-50 rounded-lg border border-blue-200">
-                <p className="text-sm text-blue-800 font-medium">
-                  🎯 Click regions to mark as "
-                  {PREFERENCE_LEVELS[selectedPreference].label}"
-                </p>
-              </div>
+          <div className="hidden lg:block">
+            <div className="px-3 py-2 bg-blue-50 rounded-lg border border-blue-200 min-h-[44px] flex items-center">
+              <p className="text-sm text-blue-800 font-medium">
+                {selectedPreference ? (
+                  <>
+                    🎯 Click regions to mark as "
+                    {PREFERENCE_LEVELS[selectedPreference].label}"
+                  </>
+                ) : (
+                  "👆 Select a preference level above"
+                )}
+              </p>
             </div>
-          )}
+          </div>
           <div className="px-3 py-1 bg-gray-50 rounded-md border border-gray-200">
             <p className="text-xs text-gray-500 font-mono text-center">
               🌍 statesidlivein.com
