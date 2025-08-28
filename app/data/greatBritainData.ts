@@ -1,5 +1,18 @@
 // Great Britain counties/regions data mapping
 export const GREAT_BRITAIN_COUNTY_NAMES: Record<string, string> = {
+  // UK Regions (from rgn2025.json)
+  "North East": "North East",
+  "North West": "North West",
+  "Yorkshire and The Humber": "Yorkshire and The Humber",
+  "East Midlands": "East Midlands",
+  "West Midlands": "West Midlands",
+  "East of England": "East of England",
+  London: "London",
+  "South East": "South East",
+  "South West": "South West",
+  Wales: "Wales",
+  Scotland: "Scotland",
+  "Northern Ireland": "Northern Ireland",
   // England
   Avon: "Avon",
   Bedfordshire: "Bedfordshire",

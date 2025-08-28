@@ -38,6 +38,8 @@ interface PreferenceStatsProps {
     | "Brazil"
     | "France"
     | "Germany"
+    | "Great Britain"
+    | "Poland"
     | "Japan";
 }
 
@@ -191,6 +193,8 @@ const getGeographyTypeName = (
     | "Brazil"
     | "France"
     | "Germany"
+    | "Great Britain"
+    | "Poland"
     | "Japan",
   count: number
 ) => {
@@ -211,6 +215,12 @@ const getGeographyTypeName = (
   }
   if (mapType === "Germany") {
     return count === 1 ? "state" : "states";
+  }
+  if (mapType === "Great Britain") {
+    return count === 1 ? "district" : "districts";
+  }
+  if (mapType === "Poland") {
+    return count === 1 ? "country" : "countries";
   }
   if (mapType === "Japan") {
     return count === 1 ? "prefecture" : "prefectures";

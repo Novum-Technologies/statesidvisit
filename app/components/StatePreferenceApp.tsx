@@ -29,6 +29,8 @@ type MapType =
   | "Brazil"
   | "France"
   | "Germany"
+  | "Great Britain"
+  | "Poland"
   | "Japan";
 
 type MapConfig = {
@@ -50,6 +52,8 @@ export function StatePreferenceApp() {
     Brazil: [],
     France: [],
     Germany: [],
+    "Great Britain": [],
+    Poland: [],
     Japan: [],
   });
   const [selectedPreference, setSelectedPreference] =
@@ -160,6 +164,38 @@ export function StatePreferenceApp() {
       },
       exclude: [],
     },
+    "Great Britain": {
+      geoUrl: "/maps/great-britain-regions.json",
+      projection: "geoAzimuthalEqualArea",
+      projectionConfig: {
+        rotate: [2, -53, 0],
+        center: [0, 2],
+        scale: 3000,
+      },
+      getGeographyId: (geo: any) =>
+        geo.properties.areacd || geo.properties.areanm || geo.id,
+      getGeographyName: (geo: any) => {
+        const name = geo.properties.areanm || geo.properties.areacd;
+        return GREAT_BRITAIN_COUNTY_NAMES[name] || name || geo.id;
+      },
+      exclude: [],
+    },
+    Poland: {
+      geoUrl: "/maps/poland-voivodeships.json",
+      projection: "geoAzimuthalEqualArea",
+      projectionConfig: {
+        rotate: [-19, -52, 0],
+        center: [0, 0],
+        scale: 5000,
+      },
+      getGeographyId: (geo: any) =>
+        geo.properties.terc || geo.properties.name || geo.id,
+      getGeographyName: (geo: any) => {
+        const name = geo.properties.name || geo.properties.terc || geo.id;
+        return POLAND_VOIVODESHIP_NAMES[name] || name;
+      },
+      exclude: [],
+    },
 
     Japan: {
       geoUrl: "/maps/japan.topo.json",
@@ -240,7 +276,23 @@ export function StatePreferenceApp() {
   const encodeAllPreferencesToURL = (
     allPrefs: Record<MapType, StatePreference[]>
   ) => {
-    const json = JSON.stringify(allPrefs);
+    // Only include maps that have preferences to reduce URL size
+    const filteredPrefs: Record<string, StatePreference[]> = {};
+    for (const [mapType, prefs] of Object.entries(allPrefs)) {
+      if (prefs.length > 0) {
+        filteredPrefs[mapType] = prefs;
+      }
+    }
+
+    // Use shorter JSON representation with map type codes
+    const compactData = Object.fromEntries(
+      Object.entries(filteredPrefs).map(([mapType, prefs]) => [
+        mapTypeToCode[mapType as MapType] || mapType, // Use short codes
+        prefs.map((p) => [p.stateId, PREFERENCE_MAP[p.preference]]),
+      ])
+    );
+
+    const json = JSON.stringify(compactData);
     return LZString.compressToEncodedURIComponent(json);
   };
 
@@ -266,29 +318,67 @@ export function StatePreferenceApp() {
   // Load preferences from URL on component mount
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const mapFromUrl = urlParams.get("map") as MapType;
 
-    if (
-      mapFromUrl &&
-      [
-        "USA",
-        "Canada",
-        "Europe",
-        "Brazil",
-        "France",
-        "Germany",
-        "Japan",
-      ].includes(mapFromUrl)
-    ) {
-      setSelectedMap(mapFromUrl);
+    // Support both new short parameter names and old long ones for backwards compatibility
+    const mapCodeOrName = urlParams.get("m") || urlParams.get("map");
+    let mapFromUrl: MapType | null = null;
+
+    if (mapCodeOrName) {
+      // Try short code first, then full name for backwards compatibility
+      mapFromUrl = codeToMapType[mapCodeOrName] || (mapCodeOrName as MapType);
+
+      if (
+        [
+          "USA",
+          "Canada",
+          "Europe",
+          "Brazil",
+          "France",
+          "Germany",
+          "Great Britain",
+          "Poland",
+          "Japan",
+        ].includes(mapFromUrl)
+      ) {
+        setSelectedMap(mapFromUrl);
+      }
     }
 
-    const compressedPrefs = urlParams.get("prefs");
+    const compressedPrefs = urlParams.get("p") || urlParams.get("prefs");
     if (compressedPrefs) {
       try {
         const json =
           LZString.decompressFromEncodedURIComponent(compressedPrefs);
-        const newAllPreferences = JSON.parse(json);
+        const compactData = JSON.parse(json);
+
+        // Convert compact format back to full format
+        const newAllPreferences: Record<MapType, StatePreference[]> = {
+          USA: [],
+          Canada: [],
+          Europe: [],
+          Brazil: [],
+          France: [],
+          Germany: [],
+          "Great Britain": [],
+          Poland: [],
+          Japan: [],
+        };
+
+        for (const [mapCode, prefs] of Object.entries(compactData)) {
+          if (Array.isArray(prefs)) {
+            // Convert short code back to full map type name
+            const mapType = codeToMapType[mapCode] || (mapCode as MapType);
+            if (newAllPreferences[mapType]) {
+              newAllPreferences[mapType] = (prefs as any[]).map(
+                ([stateId, prefNum]) => ({
+                  stateId,
+                  preference: PREFERENCE_MAP_REVERSE[prefNum as number],
+                })
+              );
+            }
+          }
+        }
+
         setAllPreferences(newAllPreferences);
         return;
       } catch (e) {
@@ -304,6 +394,8 @@ export function StatePreferenceApp() {
       Brazil: [],
       France: [],
       Germany: [],
+      "Great Britain": [],
+      Poland: [],
       Japan: [],
     };
 
@@ -314,6 +406,8 @@ export function StatePreferenceApp() {
       "Brazil",
       "France",
       "Germany",
+      "Great Britain",
+      "Poland",
       "Japan",
     ] as MapType[]) {
       const key = `prefs${mapType}`;
@@ -461,17 +555,38 @@ export function StatePreferenceApp() {
       Brazil: [],
       France: [],
       Germany: [],
+      "Great Britain": [],
+      Poland: [],
       Japan: [],
     });
     setSelectedPreference(null);
   };
 
+  // Map type to short code mapping for URLs
+  const mapTypeToCode: Record<MapType, string> = {
+    USA: "us",
+    Canada: "ca",
+    Europe: "eu",
+    Brazil: "br",
+    France: "fr",
+    Germany: "de",
+    "Great Britain": "gb",
+    Poland: "pl",
+    Japan: "jp",
+  };
+
+  const codeToMapType: Record<string, MapType> = Object.fromEntries(
+    Object.entries(mapTypeToCode).map(([k, v]) => [v, k as MapType])
+  );
+
   // Share functionality
   const handleShare = async () => {
     const encodedString = encodeAllPreferencesToURL(allPreferences);
     const url = new URL(window.location.origin);
-    url.searchParams.set("prefs", encodedString);
-    url.searchParams.set("map", selectedMap);
+
+    // Use shorter parameter names and map codes to reduce URL length
+    url.searchParams.set("p", encodedString); // "prefs" -> "p"
+    url.searchParams.set("m", mapTypeToCode[selectedMap]); // "map" -> "m" with short code
 
     const shareUrl = url.toString();
 

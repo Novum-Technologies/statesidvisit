@@ -7,6 +7,8 @@ type MapType =
   | "Brazil"
   | "France"
   | "Germany"
+  | "Great Britain"
+  | "Poland"
   | "Japan";
 
 interface CountrySelectorProps {
@@ -40,8 +42,15 @@ const countryData = {
 
   // Europe
   europe: [
+    {
+      id: "Great Britain" as MapType,
+      name: "Great Britain",
+      flag: "🇬🇧",
+      available: true,
+    },
     { id: "France" as MapType, name: "France", flag: "🇫🇷", available: true },
     { id: "Germany" as MapType, name: "Germany", flag: "🇩🇪", available: true },
+    { id: "Poland" as MapType, name: "Poland", flag: "🇵🇱", available: true },
   ],
 };
 
