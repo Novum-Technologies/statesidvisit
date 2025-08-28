@@ -1,0 +1,46 @@
+// Poland voivodeships data mapping
+export const POLAND_VOIVODESHIP_NAMES: Record<string, string> = {
+  // Polish voivodeships (województwa)
+  Dolnośląskie: "Dolnośląskie",
+  "Kujawsko-pomorskie": "Kujawsko-pomorskie",
+  Lubelskie: "Lubelskie",
+  Lubuskie: "Lubuskie",
+  Łódzkie: "Łódzkie",
+  Małopolskie: "Małopolskie",
+  Mazowieckie: "Mazowieckie",
+  Opolskie: "Opolskie",
+  Podkarpackie: "Podkarpackie",
+  Podlaskie: "Podlaskie",
+  Pomorskie: "Pomorskie",
+  Śląskie: "Śląskie",
+  Świętokrzyskie: "Świętokrzyskie",
+  "Warmińsko-mazurskie": "Warmińsko-mazurskie",
+  Wielkopolskie: "Wielkopolskie",
+  Zachodniopomorskie: "Zachodniopomorskie",
+
+  // English names
+  "Lower Silesian": "Dolnośląskie",
+  "Kuyavian-Pomeranian": "Kujawsko-pomorskie",
+  Lublin: "Lubelskie",
+  Lubusz: "Lubuskie",
+  Łódź: "Łódzkie",
+  "Lesser Poland": "Małopolskie",
+  Masovian: "Mazowieckie",
+  Opole: "Opolskie",
+  Subcarpathian: "Podkarpackie",
+  Podlachia: "Podlaskie",
+  Pomeranian: "Pomorskie",
+  Silesian: "Śląskie",
+  "Holy Cross": "Świętokrzyskie",
+  "Warmian-Masurian": "Warmińsko-mazurskie",
+  "Greater Poland": "Wielkopolskie",
+  "West Pomeranian": "Zachodniopomorskie",
+
+  // Alternative spellings without diacritics
+  Dolnoslaskie: "Dolnośląskie",
+  Lodzkie: "Łódzkie",
+  Malopolskie: "Małopolskie",
+  Slaskie: "Śląskie",
+  Swietokrzyskie: "Świętokrzyskie",
+  "Warminsko-mazurskie": "Warmińsko-mazurskie",
+};

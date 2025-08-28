@@ -14,11 +14,22 @@ import { CANADA_PROVINCE_NAMES } from "../data/canadaData";
 import { EU_COUNTRY_NAMES } from "../data/euData";
 import { STATE_NAMES } from "../data/states";
 import { BRAZIL_STATE_NAMES } from "../data/brazilData";
+import { GREAT_BRITAIN_COUNTY_NAMES } from "../data/greatBritainData";
+import { FRANCE_REGION_NAMES } from "../data/franceData";
+import { GERMANY_STATE_NAMES } from "../data/germanyData";
+import { POLAND_VOIVODESHIP_NAMES } from "../data/polandData";
 import { JAPAN_PREFECTURE_NAMES } from "../data/japanData";
 import LZString from "lz-string";
 import { feature } from "topojson-client";
 
-type MapType = "USA" | "Canada" | "Europe" | "Brazil" | "Japan";
+type MapType =
+  | "USA"
+  | "Canada"
+  | "Europe"
+  | "Brazil"
+  | "France"
+  | "Germany"
+  | "Japan";
 
 type MapConfig = {
   geoUrl: string;
@@ -37,6 +48,8 @@ export function StatePreferenceApp() {
     Canada: [],
     Europe: [],
     Brazil: [],
+    France: [],
+    Germany: [],
     Japan: [],
   });
   const [selectedPreference, setSelectedPreference] =
@@ -112,6 +125,42 @@ export function StatePreferenceApp() {
       },
       exclude: [],
     },
+
+    France: {
+      geoUrl: "/maps/france.topo.json",
+      projection: "geoConicConformal",
+      projectionConfig: {
+        rotate: [-2, 0, 0],
+        center: [2, 46.5],
+        scale: 2500,
+        parallels: [49, 44],
+      },
+      getGeographyId: (geo: any) =>
+        geo.properties.nom || geo.properties.name || geo.id,
+      getGeographyName: (geo: any) => {
+        const name = geo.properties.nom || geo.properties.name;
+        return FRANCE_REGION_NAMES[name] || name || geo.id;
+      },
+      exclude: [],
+    },
+    Germany: {
+      geoUrl: "/maps/germany-only-states.json",
+      projection: "geoConicConformal",
+      projectionConfig: {
+        rotate: [-10, 0, 0],
+        center: [1, 51],
+        scale: 3900,
+        parallels: [50, 54],
+      },
+      getGeographyId: (geo: any) =>
+        geo.properties.name || geo.properties.short || geo.id,
+      getGeographyName: (geo: any) => {
+        const name = geo.properties.name;
+        return GERMANY_STATE_NAMES[name] || name || geo.id;
+      },
+      exclude: [],
+    },
+
     Japan: {
       geoUrl: "/maps/japan.topo.json",
       projection: "geoMercator",
@@ -160,9 +209,14 @@ export function StatePreferenceApp() {
           features = data.features;
         } else {
           // TopoJSON format (like other maps)
-          features = (
-            feature(data, data.objects[Object.keys(data.objects)[0]]) as any
-          ).features;
+          let objectKey = Object.keys(data.objects)[0];
+
+          // For Germany, specifically use the "states" object instead of "berlin" or "counties"
+          if (selectedMap === "Germany" && data.objects.states) {
+            objectKey = "states";
+          }
+
+          features = (feature(data, data.objects[objectKey]) as any).features;
         }
 
         const filteredFeatures = features.filter(
@@ -216,7 +270,15 @@ export function StatePreferenceApp() {
 
     if (
       mapFromUrl &&
-      ["USA", "Canada", "Europe", "Brazil", "Japan"].includes(mapFromUrl)
+      [
+        "USA",
+        "Canada",
+        "Europe",
+        "Brazil",
+        "France",
+        "Germany",
+        "Japan",
+      ].includes(mapFromUrl)
     ) {
       setSelectedMap(mapFromUrl);
     }
@@ -240,6 +302,8 @@ export function StatePreferenceApp() {
       Canada: [],
       Europe: [],
       Brazil: [],
+      France: [],
+      Germany: [],
       Japan: [],
     };
 
@@ -248,6 +312,8 @@ export function StatePreferenceApp() {
       "Canada",
       "Europe",
       "Brazil",
+      "France",
+      "Germany",
       "Japan",
     ] as MapType[]) {
       const key = `prefs${mapType}`;
@@ -393,6 +459,8 @@ export function StatePreferenceApp() {
       Canada: [],
       Europe: [],
       Brazil: [],
+      France: [],
+      Germany: [],
       Japan: [],
     });
     setSelectedPreference(null);
